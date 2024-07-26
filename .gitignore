@@ -1,0 +1,4 @@
+*.out
+.ccls-cache/
+.gdb*
+.lsp/
