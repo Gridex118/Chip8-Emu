@@ -3,6 +3,12 @@
 
 #define arrlen(arr) (sizeof arr / sizeof arr[0])
 
+#define REG_X(instr) ((instr & 0x0F00) >> 8)
+#define REG_Y(instr) ((instr & 0x00F0) >> 4)
+#define NNN(instr) (instr & 0x0FFF)
+#define NN(instr) (instr & 0x00FF)
+#define N(instr) (instr & 0x000F)
+
 uint8_t FONT_DATA[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0,   // 0
     0x20, 0x60, 0x20, 0x20, 0x70,   // 1
@@ -74,7 +80,7 @@ namespace chip8 {
             cpu->PC += 2;
             switch ((instruction & 0xF000) >> 12) {
                 case 0x0:
-                    switch (instruction & 0x0FFF) {
+                    switch (NNN(instruction)) {
                         case 0xE0:
                             // Clear Screen
                             break;
@@ -92,33 +98,33 @@ namespace chip8 {
                     // Fallthrough here; 0x2NNN requires jumping
                 case 0x1:
                     // Jump to address
-                    cpu->PC = (instruction & 0x0FFF) - 0x0200;
+                    cpu->PC = NNN(instruction) - 0x0200;
                     break;
                 case 0x3:
-                    if (cpu->regs[(instruction & 0x0F00) >> 8] == (instruction & 0x00FF)) {
+                    if (cpu->regs[REG_X(instruction)] == NN(instruction)) {
                         cpu->PC += 2;
                     }
                     break;
                 case 0x4:
-                    if (cpu->regs[(instruction & 0x0F00) >> 8] != (instruction & 0x00FF)) {
+                    if (cpu->regs[REG_X(instruction)] != NN(instruction)) {
                         cpu->PC += 2;
                     }
                     break;
                 case 0x5:
-                    if (cpu->regs[(instruction & 0x0F00) >> 8] == cpu->regs[instruction & 0x00F0]) {
+                    if (cpu->regs[REG_X(instruction)] == cpu->regs[REG_Y(instruction)]) {
                         cpu->PC += 2;
                     }
                     break;
                 case 0x9:
-                    if (cpu->regs[(instruction & 0x0F00) >> 8] != cpu->regs[instruction & 0x00F0]) {
+                    if (cpu->regs[REG_X(instruction)] != cpu->regs[REG_Y(instruction)]) {
                         cpu->PC += 2;
                     }
                     break;
                 case 0x6:
-                    cpu->regs[(instruction & 0x0F00) >> 8] = (instruction & 0x00FF);
+                    cpu->regs[REG_X(instruction)] = NN(instruction);
                     break;
                 case 0x7:
-                    cpu->regs[(instruction & 0x0F00) >> 8] += (instruction & 0x00FF);
+                    cpu->regs[REG_X(instruction)] += NN(instruction);
                     break;
                 case 0x8:
                     break;
