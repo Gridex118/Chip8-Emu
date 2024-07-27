@@ -95,30 +95,30 @@ namespace chip8 {
                     cpu->PC = (instruction & 0x0FFF) - 0x0200;
                     break;
                 case 0x3:
-                    if (cpu->regs[instruction & 0x0F00] == (instruction & 0x00FF)) {
+                    if (cpu->regs[(instruction & 0x0F00) >> 8] == (instruction & 0x00FF)) {
                         cpu->PC += 2;
                     }
                     break;
                 case 0x4:
-                    if (cpu->regs[instruction & 0x0F00] != (instruction & 0x00FF)) {
+                    if (cpu->regs[(instruction & 0x0F00) >> 8] != (instruction & 0x00FF)) {
                         cpu->PC += 2;
                     }
                     break;
                 case 0x5:
-                    if (cpu->regs[instruction & 0x0F00] == cpu->regs[instruction & 0x00F0]) {
+                    if (cpu->regs[(instruction & 0x0F00) >> 8] == cpu->regs[instruction & 0x00F0]) {
                         cpu->PC += 2;
                     }
                     break;
                 case 0x9:
-                    if (cpu->regs[instruction & 0x0F00] != cpu->regs[instruction & 0x00F0]) {
+                    if (cpu->regs[(instruction & 0x0F00) >> 8] != cpu->regs[instruction & 0x00F0]) {
                         cpu->PC += 2;
                     }
                     break;
                 case 0x6:
-                    cpu->regs[instruction & 0x0F00] = cpu->regs[instruction & 0x00FF];
+                    cpu->regs[(instruction & 0x0F00) >> 8] = cpu->regs[instruction & 0x00FF];
                     break;
                 case 0x7:
-                    cpu->regs[instruction & 0x0F00] += cpu->regs[instruction & 0x00FF];
+                    cpu->regs[(instruction & 0x0F00) >> 8] += cpu->regs[instruction & 0x00FF];
                     break;
                 case 0x8:
                     break;
