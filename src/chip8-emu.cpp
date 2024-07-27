@@ -46,14 +46,14 @@ namespace chip8 {
         delete cpu;
     }
 
-    int Chip8Emu::load_program(std::string program) {
-        FILE *source = fopen(program.c_str(), "rb");
+    int Chip8Emu::load_program() {
+        FILE *source = fopen(runnig_program.c_str(), "rb");
         if (source == NULL) {
             std::cout << "Could not open file\n";
             std::cout << errno << '\n';
             return -1;
         }
-        size_t size = filesize(program.c_str());
+        size_t size = filesize(runnig_program.c_str());
         if (size == 0) {
             std::cout << "Empty program source\n";
             return -1;
