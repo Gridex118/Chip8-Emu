@@ -72,6 +72,57 @@ namespace chip8 {
         while (true) {
             u_int16_t instruction = (memory[0x200 + cpu->PC] << 8) + (memory[0x200 + cpu->PC + 1]);
             cpu->PC += 2;
+            switch ((instruction & 0xF000) >> 12) {
+                case 0x0:
+                    switch (instruction & 0x0FFF) {
+                        case 0xE0:
+                            // Clear Screen
+                            break;
+                        case 0xEE:
+                            // Return from function call
+                            cpu->PC = stack[cpu->SP--];
+                            break;
+                        default:
+                            // Ignore; unimplemented machine instructions
+                            break;
+                    }
+                    break;
+                case 0x2:
+                    stack[cpu->SP++] = cpu->PC;
+                    // Fallthrough here; 0x2NNN requires jumping
+                case 0x1:
+                    // Jump to address
+                    cpu->PC = (instruction & 0x0FFF) - 0x0200;
+                    break;
+                case 0x3:
+                    break;
+                case 0x4:
+                    break;
+                case 0x5:
+                    break;
+                case 0x6:
+                    break;
+                case 0x7:
+                    break;
+                case 0x8:
+                    break;
+                case 0x9:
+                    break;
+                case 0xa:
+                    break;
+                case 0xb:
+                    break;
+                case 0xc:
+                    break;
+                case 0xd:
+                    break;
+                case 0xe:
+                    break;
+                case 0xf:
+                    break;
+                default:
+                    break;
+            }
         }
         return 0;
     }
