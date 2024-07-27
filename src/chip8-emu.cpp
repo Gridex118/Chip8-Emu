@@ -115,10 +115,10 @@ namespace chip8 {
                     }
                     break;
                 case 0x6:
-                    cpu->regs[(instruction & 0x0F00) >> 8] = cpu->regs[instruction & 0x00FF];
+                    cpu->regs[(instruction & 0x0F00) >> 8] = (instruction & 0x00FF);
                     break;
                 case 0x7:
-                    cpu->regs[(instruction & 0x0F00) >> 8] += cpu->regs[instruction & 0x00FF];
+                    cpu->regs[(instruction & 0x0F00) >> 8] += (instruction & 0x00FF);
                     break;
                 case 0x8:
                     break;
