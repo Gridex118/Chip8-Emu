@@ -34,6 +34,16 @@ namespace chip8 {
             SDL_Surface *screen_surface;
     };
 
+    struct Chip8Cpu {
+        Chip8Cpu() {};
+        ~Chip8Cpu() {};
+        std::array<u_int8_t, REG_MAX> regs = {};
+        u_int8_t SP;    // Stack Pointer
+        u_int16_t PC;   // Program Counter
+        u_int16_t I;    // Index Register
+        std::array<u_int8_t, TIMERS_MAX> timers = {};
+    };
+
     class Chip8Emu {
         public:
             Chip8Emu();
@@ -44,11 +54,7 @@ namespace chip8 {
             Chip8Display *display;
             std::array<uint8_t, MEMCELL_MAX> memory = {};
             std::array<u_int16_t, STACK_MAX> stack = {};
-            std::array<u_int8_t, REG_MAX> regs = {};
-            u_int8_t SP;    // Stack Pointer
-            u_int16_t PC;   // Program Counter
-            u_int16_t I;    // Index Register
-            std::array<u_int8_t, TIMERS_MAX> timers = {};
+            Chip8Cpu *cpu;
             int load_program(std::string program);
     };
 

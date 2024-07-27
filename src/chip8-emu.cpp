@@ -25,6 +25,7 @@ namespace chip8 {
 
     Chip8Emu::Chip8Emu() {
         display = new Chip8Display();
+        cpu = new Chip8Cpu();
         for (size_t i = 0; i < arrlen(FONT_DATA); i++) {
             memory[i] = FONT_DATA[i];
         }
@@ -32,6 +33,7 @@ namespace chip8 {
 
     Chip8Emu::~Chip8Emu() {
         delete display;
+        delete cpu;
     }
 
 }
