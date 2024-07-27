@@ -127,6 +127,45 @@ namespace chip8 {
                     cpu->regs[REG_X(instruction)] += NN(instruction);
                     break;
                 case 0x8:
+                    switch (instruction & 0x000F) {
+                        case 0x0:
+                            cpu->regs[REG_X(instruction)] = cpu->regs[REG_Y(instruction)];
+                            break;
+                        case 0x1:
+                            cpu->regs[REG_X(instruction)] |= cpu->regs[REG_Y(instruction)];
+                            break;
+                        case 0x2:
+                            cpu->regs[REG_X(instruction)] &= cpu->regs[REG_Y(instruction)];
+                            break;
+                        case 0x3:
+                            cpu->regs[REG_X(instruction)] ^= cpu->regs[REG_Y(instruction)];
+                            break;
+                        case 0x4:
+                            cpu->regs[REG_X(instruction)] += cpu->regs[REG_Y(instruction)];
+                            // If, after an addition, the reg goes to 0, it must have overflown
+                            cpu->regs[VF] = cpu->regs[REG_X(instruction)] == 0;
+                            break;
+                        case 0x5:
+                            cpu->regs[REG_X(instruction)] -= cpu->regs[REG_Y(instruction)];
+                            cpu->regs[VF] = cpu->regs[REG_X(instruction)] > cpu->regs[REG_Y(instruction)];
+                            break;
+                        case 0x6:
+                            cpu->regs[VF] = cpu->regs[REG_Y(instruction)] & 0x0001;
+                            cpu->regs[REG_X(instruction)] = cpu->regs[REG_Y(instruction)] >> 1;
+                            break;
+                        case 0x7:
+                            cpu->regs[REG_Y(instruction)] -= cpu->regs[REG_X(instruction)];
+                            cpu->regs[VF] = cpu->regs[REG_Y(instruction)] > cpu->regs[REG_X(instruction)];
+                            break;
+                        case 0xe:
+                            cpu->regs[VF] = cpu->regs[REG_Y(instruction)] & 0x8000;
+                            cpu->regs[REG_X(instruction)] = cpu->regs[REG_Y(instruction)] << 1;
+                            break;
+                        default:
+                            std::cerr << "Illegal operation " << std::hex << instruction << '\n';
+                            return -1;
+                            break;
+                    }
                     break;
                 case 0xa:
                     break;
