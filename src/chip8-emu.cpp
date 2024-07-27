@@ -63,4 +63,17 @@ namespace chip8 {
         return 0;
     }
 
+    int Chip8Emu::run_program(std::string program) {
+        runnig_program = program;
+        if (load_program() != 0) {
+            std::cout << "Error while loading program to memory\n";
+            return -1;
+        }
+        while (true) {
+            u_int16_t instruction = (memory[0x200 + cpu->PC] << 8) + (memory[0x200 + cpu->PC + 1]);
+            cpu->PC += 2;
+        }
+        return 0;
+    }
+
 }
