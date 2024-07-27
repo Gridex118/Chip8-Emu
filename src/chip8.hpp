@@ -52,7 +52,7 @@ namespace chip8 {
         private:
             std::string runnig_program;
             Chip8Display *display;
-            std::array<uint8_t, MEMCELL_MAX> memory = {};
+            std::array<u_int8_t, MEMCELL_MAX> memory = {};
             std::array<u_int16_t, STACK_MAX> stack = {};
             Chip8Cpu *cpu;
             int load_program(std::string program);

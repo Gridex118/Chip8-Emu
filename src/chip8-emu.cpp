@@ -1,4 +1,5 @@
 #include "chip8.hpp"
+#include <iostream>
 
 #define arrlen(arr) (sizeof arr / sizeof arr[0])
 
@@ -21,6 +22,15 @@ uint8_t FONT_DATA[] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80    // F
 };
 
+inline size_t filesize(const char *file_name) {
+    FILE *file = fopen(file_name, "rb");
+    if (file == NULL) return 0;
+    fseek(file, 0, SEEK_END);
+    size_t size = ftell(file);
+    fclose(file);
+    return size;
+}
+
 namespace chip8 {
 
     Chip8Emu::Chip8Emu() {
@@ -34,6 +44,23 @@ namespace chip8 {
     Chip8Emu::~Chip8Emu() {
         delete display;
         delete cpu;
+    }
+
+    int Chip8Emu::load_program(std::string program) {
+        FILE *source = fopen(program.c_str(), "rb");
+        if (source == NULL) {
+            std::cout << "Could not open file\n";
+            std::cout << errno << '\n';
+            return -1;
+        }
+        size_t size = filesize(program.c_str());
+        if (size == 0) {
+            std::cout << "Empty program source\n";
+            return -1;
+        }
+        fread(&memory[0x200], sizeof(u_int8_t), size, source);
+        fclose(source);
+        return 0;
     }
 
 }
