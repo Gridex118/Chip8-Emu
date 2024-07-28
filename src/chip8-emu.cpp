@@ -29,6 +29,10 @@ uint8_t FONT_DATA[] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80    // F
 };
 
+inline u_int16_t font_addr(u_int8_t font) {
+    return FONT_DATA[5 * font];
+}
+
 inline size_t filesize(const char *file_name) {
     FILE *file = fopen(file_name, "rb");
     if (file == NULL) return 0;
@@ -202,7 +206,14 @@ namespace chip8 {
                             // Blocking input
                             break;
                         case 0x29:
-                            // Point I to address of font in VX
+                            {
+                                u_int8_t font = REG_X(instruction);
+                                if (font > 0xf) {
+                                    std::cerr << "Trying to access unknown font\n";
+                                    return -1;
+                                }
+                                cpu->I = font_addr(font);
+                            }
                             break;
                         case 0x33:
                             // copy decimal fonts for VX to I
