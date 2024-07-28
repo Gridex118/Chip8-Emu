@@ -178,10 +178,49 @@ namespace chip8 {
                     cpu->regs[REG_X(instruction)] = rand() & NN(instruction);
                     break;
                 case 0xd:
+                    // Draw to screen
                     break;
                 case 0xe:
+                    // Skipping based on key presses
                     break;
                 case 0xf:
+                    switch (NN(instruction)) {
+                        case 0x07:
+                            cpu->regs[REG_X(instruction)] = cpu->timers[D];
+                            break;
+                        case 0x15:
+                            cpu->timers[D] = cpu->regs[REG_X(instruction)];
+                            break;
+                        case 0x18:
+                            cpu->timers[S] = cpu->regs[REG_X(instruction)];
+                            break;
+                        case 0x1E:
+                            cpu->I += cpu->regs[REG_X(instruction)];
+                            cpu->regs[VF] = (cpu->I > 0x1000)? 1 : 0;
+                            break;
+                        case 0x0A:
+                            // Blocking input
+                            break;
+                        case 0x29:
+                            // Point I to address of font in VX
+                            break;
+                        case 0x33:
+                            // copy decimal fonts for VX to I
+                            break;
+                        case 0x55:
+                            for (int x = 0; x <= REG_X(instruction); x++) {
+                                memory[cpu->I + x] = cpu->regs[x];
+                            }
+                            break;
+                        case 0x65:
+                            for (int x = 0; x <= REG_X(instruction); x++) {
+                                cpu->regs[x] = memory[cpu->I + x];
+                            }
+                            break;
+                        default:
+                            std::cerr << "Invalid Operation requested: " << std::hex << instruction << '\n';
+                            return -1;
+                    }
                     break;
                 default:
                     break;
