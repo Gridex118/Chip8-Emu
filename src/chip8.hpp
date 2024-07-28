@@ -29,6 +29,7 @@ namespace chip8 {
         public:
             Chip8Display() {};
             ~Chip8Display() {};
+            int init(std::string program);
         private:
             SDL_Window *window;
             SDL_Surface *screen_surface;
