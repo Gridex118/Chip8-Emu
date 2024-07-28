@@ -1,5 +1,6 @@
 #include "chip8.hpp"
 #include <iostream>
+#include <cstdlib>
 
 #define arrlen(arr) (sizeof arr / sizeof arr[0])
 
@@ -168,10 +169,13 @@ namespace chip8 {
                     }
                     break;
                 case 0xa:
+                    cpu->I = NNN(instruction);
                     break;
                 case 0xb:
+                    cpu->PC = cpu->regs[V0] + NNN(instruction) - 0x200;
                     break;
                 case 0xc:
+                    cpu->regs[REG_X(instruction)] = rand() & NN(instruction);
                     break;
                 case 0xd:
                     break;
