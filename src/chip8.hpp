@@ -68,6 +68,7 @@ namespace chip8 {
             std::array<u_int16_t, STACK_MAX> stack = {};
             Chip8Cpu *cpu;
             int load_program();
+            int exec_instr(u_int16_t &instruction);
     };
 
 }
