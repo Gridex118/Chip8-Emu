@@ -35,4 +35,22 @@ namespace chip8 {
         SDL_RenderClear(renderer);
     }
 
+    void Chip8Display::draw(u_int8_t *sprite_base_addr, int X, int Y, int rows) {
+        for (int row = 0; row < rows; row++) {
+            int x = X;
+            for (int col = 0; col < 8; col++) {
+                bool pixel_in_sprite = ((sprite_base_addr[row] >> (7 - col)) & 1);
+                if (pixels_on_screen[Y][x] ^= pixel_in_sprite) {
+                    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+                    SDL_RenderDrawPoint(renderer, x, Y);
+                }
+                if (x == 63) break;
+                ++x;
+            }
+            if (Y == 31) break;
+            ++Y;
+        }
+        SDL_RenderPresent(renderer);
+    }
+
 }

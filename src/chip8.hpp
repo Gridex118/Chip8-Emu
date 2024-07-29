@@ -39,6 +39,7 @@ namespace chip8 {
             ~Chip8Display();
             int init(std::string program);
             void clear();
+            void draw(u_int8_t *sprite_base_addr, int x, int y, int rows);
         private:
             SDL_Window *window;
             SDL_Renderer *renderer;
