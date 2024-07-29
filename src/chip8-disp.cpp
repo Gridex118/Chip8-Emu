@@ -1,8 +1,11 @@
 #include "chip8.hpp"
 #include <iostream>
 
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 320
+#define PIXEL_SCALE_FACTOR (10)
+#define SCALE_PX(px) (PIXEL_SCALE_FACTOR * px)
+
+#define WINDOW_WIDTH (SCALE_PX(64))
+#define WINDOW_HEIGHT (SCALE_PX(32))
 
 namespace chip8 {
 
