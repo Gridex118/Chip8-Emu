@@ -40,10 +40,12 @@ namespace chip8 {
             int init(std::string program);
             void clear();
             void draw(u_int8_t *sprite_base_addr, int x, int y, int rows);
+            SDL_Event event;
         private:
             SDL_Window *window;
             SDL_Renderer *renderer;
             bool pixels_on_screen[REAL_HEIGHT][REAL_WIDTH] = {};
+            void render_screen();
     };
 
     struct Chip8Cpu {

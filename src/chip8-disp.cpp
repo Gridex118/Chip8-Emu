@@ -21,7 +21,7 @@ namespace chip8 {
             return -1;
         }
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-        SDL_RenderSetLogicalSize(renderer, SCALE_PX(2), SCALE_PX(1));
+        SDL_RenderSetLogicalSize(renderer, REAL_WIDTH, REAL_HEIGHT);
         return 0;
     }
 
@@ -35,22 +35,34 @@ namespace chip8 {
         SDL_RenderClear(renderer);
     }
 
+    void Chip8Display::render_screen() {
+        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_RenderClear(renderer);
+        for (int i = 0; i < REAL_HEIGHT; ++i) {
+            for (int j = 0; j < REAL_WIDTH; j++) {
+                if (pixels_on_screen[i][j]) {
+                    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+                    SDL_RenderDrawPoint(renderer, j, i);
+                }
+            }
+        }
+        SDL_RenderPresent(renderer);
+    }
+
     void Chip8Display::draw(u_int8_t *sprite_base_addr, int X, int Y, int rows) {
+        int y = Y % 32;
         for (int row = 0; row < rows; row++) {
-            int x = X;
+            int x = X % 64;
             for (int col = 0; col < 8; col++) {
                 bool pixel_in_sprite = ((sprite_base_addr[row] >> (7 - col)) & 1);
-                if (pixels_on_screen[Y][x] ^= pixel_in_sprite) {
-                    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
-                    SDL_RenderDrawPoint(renderer, x, Y);
-                }
+                pixels_on_screen[y][x] ^= pixel_in_sprite;
                 if (x == 63) break;
                 ++x;
             }
-            if (Y == 31) break;
-            ++Y;
+            if (y == 31) break;
+            ++y;
         }
-        SDL_RenderPresent(renderer);
+        render_screen();
     }
 
 }

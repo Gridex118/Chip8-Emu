@@ -79,7 +79,7 @@ namespace chip8 {
             case 0x0:
                 switch (NNN(instruction)) {
                     case 0xE0:
-                        // Clear Screen
+                        display->clear();
                         break;
                     case 0xEE:
                         // Return from function call
@@ -174,7 +174,7 @@ namespace chip8 {
                 cpu->regs[REG_X(instruction)] = rand() & NN(instruction);
                 break;
             case 0xd:
-                // Draw to screen
+                display->draw(&memory[cpu->I], cpu->regs[REG_X(instruction)], cpu->regs[REG_Y(instruction)], N(instruction));
                 break;
             case 0xe:
                 // Skipping based on key presses
@@ -233,11 +233,15 @@ namespace chip8 {
 
     int Chip8Emu::run_program(std::string program) {
         runnig_program = program;
+        display->init(runnig_program);
         if (load_program() != 0) {
             std::cout << "Error while loading program to memory\n";
             return -1;
         }
         while (true) {
+            if ((SDL_PollEvent(&display->event) && display->event.type == SDL_QUIT)) {
+                break;
+            }
             u_int16_t instruction = (memory[0x200 + cpu->PC] << 8) + (memory[0x200 + cpu->PC + 1]);
             cpu->PC += 2;
             if (exec_instr(instruction) != 0) {
