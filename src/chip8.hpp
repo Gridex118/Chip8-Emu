@@ -42,7 +42,7 @@ namespace chip8 {
         private:
             SDL_Window *window;
             SDL_Renderer *renderer;
-            bool pixels_on_screen[REAL_WIDTH][REAL_WIDTH] = {};
+            bool pixels_on_screen[REAL_HEIGHT][REAL_WIDTH] = {};
     };
 
     struct Chip8Cpu {

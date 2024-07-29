@@ -26,8 +26,8 @@ namespace chip8 {
     }
 
     void Chip8Display::clear() {
-        for (size_t i = 0; i < REAL_WIDTH; i++) {
-            for (size_t j= 0; j < REAL_HEIGHT; j++) {
+        for (size_t i = 0; i < REAL_HEIGHT; i++) {
+            for (size_t j = 0; j < REAL_WIDTH; j++) {
                 pixels_on_screen[i][j] = 0;
             }
         }
