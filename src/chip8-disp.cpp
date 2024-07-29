@@ -1,13 +1,13 @@
 #include "chip8.hpp"
 #include <iostream>
 
-#define PIXEL_SCALE_FACTOR (10)
-#define SCALE_PX(px) (PIXEL_SCALE_FACTOR * px)
-
-#define WINDOW_WIDTH (SCALE_PX(64))
-#define WINDOW_HEIGHT (SCALE_PX(32))
-
 namespace chip8 {
+
+    Chip8Display::~Chip8Display() {
+        SDL_DestroyRenderer(renderer);
+        SDL_DestroyWindow(window);
+        SDL_Quit();
+    }
 
     int Chip8Display::init(std::string program) {
         if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -23,6 +23,16 @@ namespace chip8 {
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         SDL_RenderSetLogicalSize(renderer, SCALE_PX(2), SCALE_PX(1));
         return 0;
+    }
+
+    void Chip8Display::clear() {
+        for (size_t i = 0; i < REAL_WIDTH; i++) {
+            for (size_t j= 0; j < REAL_HEIGHT; j++) {
+                pixels_on_screen[i][j] = 0;
+            }
+        }
+        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_RenderClear(renderer);
     }
 
 }

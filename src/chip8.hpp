@@ -10,6 +10,14 @@
 // 16 cells, 2B each = 32B
 #define STACK_MAX 16
 
+#define PIXEL_SCALE_FACTOR (10)
+#define SCALE_PX(px) (PIXEL_SCALE_FACTOR * px)
+#define REAL_WIDTH 64
+#define REAL_HEIGHT 32
+#define WINDOW_WIDTH (SCALE_PX(REAL_WIDTH))
+#define WINDOW_HEIGHT (SCALE_PX(REAL_HEIGHT))
+
+
 namespace chip8 {
 
     // General purpose registers
@@ -28,11 +36,13 @@ namespace chip8 {
     class Chip8Display {
         public:
             Chip8Display() {};
-            ~Chip8Display() {};
+            ~Chip8Display();
             int init(std::string program);
+            void clear();
         private:
             SDL_Window *window;
             SDL_Renderer *renderer;
+            bool pixels_on_screen[REAL_WIDTH][REAL_WIDTH] = {};
     };
 
     struct Chip8Cpu {
