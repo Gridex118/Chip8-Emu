@@ -20,7 +20,8 @@ namespace chip8 {
             std::cerr << "Failed to create window: " << SDL_GetError() << '\n';
             return -1;
         }
-        screen_surface = SDL_GetWindowSurface(window);
+        renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+        SDL_RenderSetLogicalSize(renderer, SCALE_PX(2), SCALE_PX(1));
         return 0;
     }
 

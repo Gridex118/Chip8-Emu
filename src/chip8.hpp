@@ -32,7 +32,7 @@ namespace chip8 {
             int init(std::string program);
         private:
             SDL_Window *window;
-            SDL_Surface *screen_surface;
+            SDL_Renderer *renderer;
     };
 
     struct Chip8Cpu {
