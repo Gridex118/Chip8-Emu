@@ -83,7 +83,7 @@ namespace chip8 {
                         break;
                     case 0xEE:
                         // Return from function call
-                        cpu->PC = stack[cpu->SP--];
+                        cpu->PC = stack[--cpu->SP];
                         break;
                     default:
                         // Ignore; unimplemented machine instructions
