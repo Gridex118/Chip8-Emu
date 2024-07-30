@@ -4,6 +4,7 @@
 #include <string>
 #include <array>
 #include <SDL2/SDL.h>
+#include <chrono>
 
 // 4096 cells, 1B each = 4096B = 4KiB
 #define MEMCELL_MAX 4096
@@ -17,6 +18,8 @@
 #define WINDOW_WIDTH (SCALE_PX(REAL_WIDTH))
 #define WINDOW_HEIGHT (SCALE_PX(REAL_HEIGHT))
 
+using Clock = std::chrono::steady_clock;
+using std::chrono::milliseconds;
 
 namespace chip8 {
 
@@ -55,6 +58,9 @@ namespace chip8 {
         u_int16_t PC;   // Program Counter
         u_int16_t I;    // Index Register
         std::array<u_int8_t, TIMERS_MAX> timers = {};
+        inline void decrement_timers();
+        private:
+            std::chrono::time_point<Clock> last_time_stamp = Clock::now();
     };
 
     class Chip8Emu {
