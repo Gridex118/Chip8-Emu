@@ -40,7 +40,6 @@ namespace chip8 {
             int init(std::string program);
             void clear();
             void draw(u_int8_t *sprite_base_addr, int x, int y, int rows);
-            SDL_Event event;
         private:
             SDL_Window *window;
             SDL_Renderer *renderer;
@@ -66,10 +65,12 @@ namespace chip8 {
         private:
             std::string runnig_program;
             Chip8Display *display;
+            SDL_Event event;
             std::array<u_int8_t, MEMCELL_MAX> memory = {};
             std::array<u_int16_t, STACK_MAX> stack = {};
             Chip8Cpu *cpu;
             int load_program();
+            inline u_int16_t fetch_instr();
             int exec_instr(u_int16_t &instruction);
     };
 

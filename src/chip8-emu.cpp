@@ -74,6 +74,12 @@ namespace chip8 {
         return 0;
     }
 
+    inline u_int16_t Chip8Emu::fetch_instr() {
+        u_int16_t instruction = (memory[0x200 + cpu->PC] << 8) + (memory[0x200 + cpu->PC + 1]);
+        cpu->PC += 2;
+        return instruction;
+    }
+
     int Chip8Emu::exec_instr(u_int16_t &instruction) {
         switch ((instruction & 0xF000) >> 12) {
             case 0x0:
@@ -239,11 +245,10 @@ namespace chip8 {
             return -1;
         }
         while (true) {
-            if ((SDL_PollEvent(&display->event) && display->event.type == SDL_QUIT)) {
+            if ((SDL_PollEvent(&event) && event.type == SDL_QUIT)) {
                 break;
             }
-            u_int16_t instruction = (memory[0x200 + cpu->PC] << 8) + (memory[0x200 + cpu->PC + 1]);
-            cpu->PC += 2;
+            u_int16_t instruction = fetch_instr();
             if (exec_instr(instruction) != 0) {
                 std::cerr << "Error in execution stage\n";
                 return -1;
