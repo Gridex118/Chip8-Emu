@@ -1,6 +1,7 @@
 #include "chip8.hpp"
 #include <iostream>
 #include <cstdlib>
+#include <unordered_map>
 
 #define arrlen(arr) (sizeof arr / sizeof arr[0])
 
@@ -9,6 +10,17 @@
 #define NNN(instr) (instr & 0x0FFF)
 #define NN(instr) (instr & 0x00FF)
 #define N(instr) (instr & 0x000F)
+
+std::unordered_map<u_int8_t, int> KEYS = {
+    {SDLK_1, 0x1}, {SDLK_2, 0x2},
+    {SDLK_3, 0x3}, {SDLK_4, 0xc},
+    {SDLK_q, 0x4}, {SDLK_w, 0x5},
+    {SDLK_e, 0x6}, {SDLK_r, 0xd},
+    {SDLK_a, 0x7}, {SDLK_s, 0x8},
+    {SDLK_d, 0x9}, {SDLK_f, 0xe},
+    {SDLK_z, 0xa}, {SDLK_x, 0x0},
+    {SDLK_c, 0xb}, {SDLK_v, 0xf}
+};
 
 uint8_t FONT_DATA[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0,   // 0
@@ -42,17 +54,18 @@ inline size_t filesize(const char *file_name) {
     return size;
 }
 
+void store_decimal(u_int8_t *storage_base_addr, u_int8_t number) {
+    std::string s_number = std::to_string((int)number);
+    for (int i = 0; i < s_number.length(); i++) {
+        storage_base_addr[i] = (char)s_number[i];
+    }
+}
+
 namespace chip8 {
 
     inline void Chip8Cpu::decrement_timers() {
-        auto current_time_stamp = Clock::now();
-        milliseconds duration = std::chrono::duration_cast<milliseconds>(current_time_stamp - last_time_stamp);
-        milliseconds min_ms_elapsed = static_cast<milliseconds>(17);
-        if (duration >= min_ms_elapsed) {
-            last_time_stamp = current_time_stamp;
-            if (timers[D]) --timers[D];
-            if (timers[S]) --timers[S];
-        }
+        if (timers[D]) --timers[D];
+        if (timers[S]) --timers[S];
     }
 
     Chip8Emu::Chip8Emu() {
@@ -155,9 +168,13 @@ namespace chip8 {
                         cpu->regs[REG_X(instruction)] ^= cpu->regs[REG_Y(instruction)];
                         break;
                     case 0x4:
-                        cpu->regs[REG_X(instruction)] += cpu->regs[REG_Y(instruction)];
-                        // If, after an addition, the reg goes to 0, it must have overflown
-                        cpu->regs[VF] = cpu->regs[REG_X(instruction)] == 0;
+                        {
+                            int regx = REG_X(instruction);
+                            u_int8_t reg_pre_addition = cpu->regs[regx];
+                            cpu->regs[regx] += cpu->regs[REG_Y(instruction)];
+                            // If, after an addition, the reg is smaller than before, it must have overflown
+                            cpu->regs[VF] = (reg_pre_addition > cpu->regs[regx]);
+                        }
                         break;
                     case 0x5:
                         cpu->regs[REG_X(instruction)] -= cpu->regs[REG_Y(instruction)];
@@ -191,10 +208,21 @@ namespace chip8 {
                 cpu->regs[REG_X(instruction)] = rand() & NN(instruction);
                 break;
             case 0xd:
-                display->draw(&memory[cpu->I], cpu->regs[REG_X(instruction)], cpu->regs[REG_Y(instruction)], N(instruction));
+                cpu->regs[VF] = display->draw(&memory[cpu->I], cpu->regs[REG_X(instruction)], cpu->regs[REG_Y(instruction)], N(instruction));
                 break;
             case 0xe:
-                // Skipping based on key presses
+                switch (NN(instruction)) {
+                    case 0x9e:
+                        if (cpu->regs[REG_X(instruction)] == pressed_key) {
+                            cpu->PC += 2;
+                        }
+                        break;
+                    case 0xa1:
+                        if (cpu->regs[REG_X(instruction)] != pressed_key) {
+                            cpu->PC += 2;
+                        }
+                        break;
+                }
                 break;
             case 0xf:
                 switch (NN(instruction)) {
@@ -212,7 +240,12 @@ namespace chip8 {
                         cpu->regs[VF] = (cpu->I > 0x1000)? 1 : 0;
                         break;
                     case 0x0A:
-                        // Blocking input
+                        SDL_WaitEvent(&event);
+                        if (event.type == SDL_KEYDOWN) {
+                            cpu->regs[REG_X(instruction)] = KEYS[event.key.keysym.sym];
+                        } else {
+                            exec_instr(instruction);
+                        }
                         break;
                     case 0x29:
                         {
@@ -225,7 +258,7 @@ namespace chip8 {
                         }
                         break;
                     case 0x33:
-                        // copy decimal fonts for VX to I
+                        store_decimal(&memory[cpu->I], cpu->regs[REG_X(instruction)]);
                         break;
                     case 0x55:
                         for (int x = 0; x <= REG_X(instruction); x++) {
@@ -255,16 +288,27 @@ namespace chip8 {
             std::cout << "Error while loading program to memory\n";
             return -1;
         }
-        while (true) {
-            if ((SDL_PollEvent(&event) && event.type == SDL_QUIT)) {
-                break;
-            }
+        bool running = true;
+        int frame_time;
+        while (running) {
+            int frame_start = SDL_GetTicks();
             u_int16_t instruction = fetch_instr();
             if (exec_instr(instruction) != 0) {
                 std::cerr << "Error in execution stage\n";
                 return -1;
             }
+            while (SDL_PollEvent(&event)) {
+                if (event.type == SDL_QUIT) {
+                    running = false;
+                } else if (event.type == SDL_KEYDOWN) {
+                    pressed_key = KEYS[event.key.keysym.sym];
+                }
+            }
             cpu->decrement_timers();
+            frame_time = SDL_GetTicks() - frame_start;
+            if (FRAMEDELAY > frame_time) {
+                SDL_Delay(FRAMEDELAY - frame_time);
+            }
         }
         return 0;
     }

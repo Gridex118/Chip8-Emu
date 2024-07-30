@@ -22,6 +22,7 @@ namespace chip8 {
         }
         renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
         SDL_RenderSetLogicalSize(renderer, REAL_WIDTH, REAL_HEIGHT);
+        render_screen();
         return 0;
     }
 
@@ -49,12 +50,14 @@ namespace chip8 {
         SDL_RenderPresent(renderer);
     }
 
-    void Chip8Display::draw(u_int8_t *sprite_base_addr, int X, int Y, int rows) {
+    bool Chip8Display::draw(u_int8_t *sprite_base_addr, int X, int Y, int rows) {
+        bool bit_turned_off = false;
         int y = Y % 32;
         for (int row = 0; row < rows; row++) {
             int x = X % 64;
             for (int col = 0; col < 8; col++) {
                 bool pixel_in_sprite = ((sprite_base_addr[row] >> (7 - col)) & 1);
+                bit_turned_off |= (pixel_in_sprite & pixels_on_screen[y][x]);
                 pixels_on_screen[y][x] ^= pixel_in_sprite;
                 if (x == 63) break;
                 ++x;
@@ -63,6 +66,7 @@ namespace chip8 {
             ++y;
         }
         render_screen();
+        return bit_turned_off;
     }
 
 }
