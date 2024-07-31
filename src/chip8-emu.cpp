@@ -12,14 +12,25 @@
 #define N(instr) (instr & 0x000F)
 
 std::unordered_map<u_int8_t, int> KEYS = {
-    {SDLK_1, 0x1}, {SDLK_2, 0x2},
-    {SDLK_3, 0x3}, {SDLK_4, 0xc},
-    {SDLK_q, 0x4}, {SDLK_w, 0x5},
-    {SDLK_e, 0x6}, {SDLK_r, 0xd},
-    {SDLK_a, 0x7}, {SDLK_s, 0x8},
-    {SDLK_d, 0x9}, {SDLK_f, 0xe},
-    {SDLK_z, 0xa}, {SDLK_x, 0x0},
-    {SDLK_c, 0xb}, {SDLK_v, 0xf}
+    {SDL_SCANCODE_1, 0x1}, {SDL_SCANCODE_2, 0x2},
+    {SDL_SCANCODE_3, 0x3}, {SDL_SCANCODE_4, 0xc},
+    {SDL_SCANCODE_Q, 0X4}, {SDL_SCANCODE_W, 0X5},
+    {SDL_SCANCODE_E, 0X6}, {SDL_SCANCODE_R, 0XD},
+    {SDL_SCANCODE_A, 0X7}, {SDL_SCANCODE_S, 0X8},
+    {SDL_SCANCODE_D, 0X9}, {SDL_SCANCODE_F, 0XE},
+    {SDL_SCANCODE_Z, 0XA}, {SDL_SCANCODE_X, 0X0},
+    {SDL_SCANCODE_C, 0XB}, {SDL_SCANCODE_V, 0XF}
+};
+
+std::unordered_map<int, u_int8_t> KEYS_REV = {
+    {0x1, SDL_SCANCODE_1}, {0x2, SDL_SCANCODE_2},
+    {0x3, SDL_SCANCODE_3}, {0xc, SDL_SCANCODE_4},
+    {0X4, SDL_SCANCODE_Q}, {0X5, SDL_SCANCODE_W},
+    {0X6, SDL_SCANCODE_E}, {0XD, SDL_SCANCODE_R},
+    {0X7, SDL_SCANCODE_A}, {0X8, SDL_SCANCODE_S},
+    {0X9, SDL_SCANCODE_D}, {0XE, SDL_SCANCODE_F},
+    {0XA, SDL_SCANCODE_Z}, {0X0, SDL_SCANCODE_X},
+    {0XB, SDL_SCANCODE_C}, {0XF, SDL_SCANCODE_V},
 };
 
 uint8_t FONT_DATA[] = {
@@ -211,17 +222,20 @@ namespace chip8 {
                 cpu->regs[VF] = display->draw(&memory[cpu->I], cpu->regs[REG_X(instruction)], cpu->regs[REG_Y(instruction)], N(instruction));
                 break;
             case 0xe:
+                requested_key = KEYS_REV[cpu->regs[REG_X(instruction)]];
+                key_check_requested = true;
                 switch (NN(instruction)) {
                     case 0x9e:
-                        if (cpu->regs[REG_X(instruction)] == pressed_key) {
-                            cpu->PC += 2;
-                        }
+                        // Skip next instruction if key VX is down
+                        key_skip_xor_mask = 1;
                         break;
                     case 0xa1:
-                        if (cpu->regs[REG_X(instruction)] != pressed_key) {
-                            cpu->PC += 2;
-                        }
+                        // Skip next instruction if key VX is up
+                        key_skip_xor_mask = 0;
                         break;
+                    default:
+                        std::cerr << "Illegal Operation requested\n";
+                        return -1;
                 }
                 break;
             case 0xf:
@@ -288,6 +302,7 @@ namespace chip8 {
             std::cout << "Error while loading program to memory\n";
             return -1;
         }
+        const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
         bool running = true;
         int frame_time;
         while (running) {
@@ -300,8 +315,12 @@ namespace chip8 {
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) {
                     running = false;
-                } else if (event.type == SDL_KEYDOWN) {
-                    pressed_key = KEYS[event.key.keysym.sym];
+                }
+            }
+            if (key_check_requested) {
+                key_check_requested = false;
+                if (!(kbstate[requested_key] ^ key_skip_xor_mask)) {
+                    cpu->PC += 2;
                 }
             }
             cpu->decrement_timers();
