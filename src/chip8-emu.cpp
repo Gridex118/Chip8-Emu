@@ -224,7 +224,9 @@ namespace chip8 {
                 cpu->regs[REG_X(instruction)] = rand() & NN(instruction);
                 break;
             case 0xd:
-                cpu->regs[VF] = display->draw(&memory[cpu->I], cpu->regs[REG_X(instruction)], cpu->regs[REG_Y(instruction)], N(instruction));
+                cpu->regs[VF] = display->draw(&memory[cpu->I], cpu->regs[REG_X(instruction)],
+                        cpu->regs[REG_Y(instruction)], N(instruction)
+                        );
                 break;
             case 0xe:
                 requested_key = KEYS_REV[cpu->regs[REG_X(instruction)]];
