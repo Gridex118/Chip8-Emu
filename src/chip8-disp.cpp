@@ -32,17 +32,17 @@ namespace chip8 {
                 pixels_on_screen[i][j] = 0;
             }
         }
-        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
         SDL_RenderClear(renderer);
     }
 
     void Chip8Display::render_screen() {
-        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
         for (int i = 0; i < REAL_HEIGHT; ++i) {
             for (int j = 0; j < REAL_WIDTH; j++) {
                 if (pixels_on_screen[i][j]) {
-                    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+                    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
                     SDL_RenderDrawPoint(renderer, j, i);
                 }
             }
