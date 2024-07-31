@@ -102,13 +102,13 @@ namespace chip8 {
     int Chip8Emu::load_program() {
         FILE *source = fopen(runnig_program.c_str(), "rb");
         if (source == NULL) {
-            std::cout << "Could not open file\n";
-            std::cout << errno << '\n';
+            std::cerr << "Could not open file\n";
+            std::cerr << errno << '\n';
             return -1;
         }
         size_t size = filesize(runnig_program.c_str());
         if (size == 0) {
-            std::cout << "Empty program source\n";
+            std::cerr << "Empty program source\n";
             return -1;
         }
         fread(&memory[0x200], sizeof(u_int8_t), size, source);
@@ -318,7 +318,7 @@ namespace chip8 {
         runnig_program = program;
         display->init(runnig_program);
         if (load_program() != 0) {
-            std::cout << "Error while loading program to memory\n";
+            std::cerr << "Error while loading program to memory\n";
             return -1;
         }
         const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
