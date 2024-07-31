@@ -269,9 +269,9 @@ namespace chip8 {
                         break;
                     case 0x1E:
                         cpu->I += cpu->regs[REG_X(instruction)];
-                        cpu->regs[VF] = (cpu->I > 0x1000)? 1 : 0;
                         break;
                     case 0x0A:
+                        key_any_requested_reg = REG_X(instruction);
                         key_any_requested = true;
                         break;
                     case 0x29:
@@ -328,12 +328,18 @@ namespace chip8 {
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) {
                     running = false;
-                } else if (key_any_requested) {
-                    if (!(event.type == SDL_KEYDOWN)) {
-                        cpu->PC -= 2;
-                    } else {
+                }
+            }
+            if (key_any_requested) {
+                SDL_WaitEvent(&event);
+                if (event.type == SDL_KEYDOWN) {
+                    u_int8_t scancode = event.key.keysym.scancode;
+                    if (KEYS.find(scancode) != KEYS.end()) {
+                        cpu->regs[key_any_requested_reg] = KEYS[scancode];
                         key_any_requested = false;
                     }
+                } else {
+                    cpu->PC -= 2;
                 }
             }
             if (key_check_requested) {

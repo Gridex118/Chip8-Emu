@@ -70,6 +70,7 @@ namespace chip8 {
             Chip8Display *display;
             SDL_Event event;
             bool key_any_requested = false;
+            int key_any_requested_reg = 0;
             bool key_check_requested = false;
             u_int8_t requested_key = 0;
             bool key_skip_xor_mask = 0;
