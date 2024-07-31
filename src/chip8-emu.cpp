@@ -276,7 +276,7 @@ namespace chip8 {
                         break;
                     case 0x29:
                         {
-                            u_int8_t font = REG_X(instruction);
+                            u_int8_t font = cpu->regs[REG_X(instruction)];
                             if (font > 0xf) {
                                 std::cerr << "Trying to access unknown font\n";
                                 return -1;
