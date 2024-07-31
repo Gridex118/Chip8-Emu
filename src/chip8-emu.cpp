@@ -76,8 +76,14 @@ void store_decimal(u_int8_t *storage_base_addr, int number) {
 namespace chip8 {
 
     inline void Chip8Cpu::decrement_timers() {
-        if (timers[D]) --timers[D];
-        if (timers[S]) --timers[S];
+        auto current_time_stamp = Clock::now();
+        milliseconds duration = std::chrono::duration_cast<milliseconds>(current_time_stamp - last_time_stamp);
+        milliseconds min_ms_elapsed = static_cast<milliseconds>(17);
+        if (duration >= min_ms_elapsed) {
+            last_time_stamp = current_time_stamp;
+            if (timers[D]) --timers[D];
+            if (timers[S]) --timers[S];
+        }
     }
 
     Chip8Emu::Chip8Emu() {
