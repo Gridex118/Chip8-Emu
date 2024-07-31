@@ -53,7 +53,7 @@ uint8_t FONT_DATA[] = {
 };
 
 inline u_int16_t font_addr(u_int8_t font) {
-    return FONT_DATA[5 * font];
+    return (5 * font);
 }
 
 inline size_t filesize(const char *file_name) {
@@ -67,8 +67,13 @@ inline size_t filesize(const char *file_name) {
 
 void store_decimal(u_int8_t *storage_base_addr, u_int8_t number) {
     std::string s_number = std::to_string((int)number);
-    for (int i = 0; i < s_number.length(); i++) {
-        storage_base_addr[i] = (char)s_number[i];
+    int i = 0;
+    while (i < (3 - (int)s_number.length())) {
+        storage_base_addr[i++] = '0';
+    }
+    while (i < 3) {
+        storage_base_addr[i] = (char)s_number[3 - i];
+        ++i;
     }
 }
 
@@ -256,7 +261,9 @@ namespace chip8 {
                     case 0x0A:
                         SDL_WaitEvent(&event);
                         if (event.type == SDL_KEYDOWN) {
-                            cpu->regs[REG_X(instruction)] = KEYS[event.key.keysym.sym];
+                            int pressed_key = KEYS[event.key.keysym.scancode];
+                            cpu->regs[REG_X(instruction)] = pressed_key;
+                            std::cout << pressed_key << '\n';
                         } else {
                             exec_instr(instruction);
                         }
