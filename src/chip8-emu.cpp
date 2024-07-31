@@ -65,15 +65,11 @@ inline size_t filesize(const char *file_name) {
     return size;
 }
 
-void store_decimal(u_int8_t *storage_base_addr, u_int8_t number) {
-    std::string s_number = std::to_string((int)number);
-    int i = 0;
-    while (i < (3 - (int)s_number.length())) {
-        storage_base_addr[i++] = '0';
-    }
-    while (i < 3) {
-        storage_base_addr[i] = (char)s_number[3 - i];
-        ++i;
+void store_decimal(u_int8_t *storage_base_addr, int number) {
+    int i = 2;
+    while (i >= 0) {
+        storage_base_addr[i--] = number % 10;
+        number /= 10;
     }
 }
 
@@ -195,20 +191,32 @@ namespace chip8 {
                             }
                             break;
                         case 0x5:
-                            cpu->regs[VF] = cpu->regs[regx] > cpu->regs[REG_Y(instruction)];
-                            cpu->regs[regx] -= cpu->regs[regy];
-                            break;
-                        case 0x6:
-                            cpu->regs[VF] = cpu->regs[regy] & 0x0001;
-                            cpu->regs[regx] = cpu->regs[regy] >> 1;
+                            {
+                                bool flag = cpu->regs[regx] >= cpu->regs[regy];
+                                cpu->regs[regx] -= cpu->regs[regy];
+                                cpu->regs[VF] = flag;
+                            }
                             break;
                         case 0x7:
-                            cpu->regs[VF] = cpu->regs[regy] > cpu->regs[regx];
-                            cpu->regs[regx] = cpu->regs[regy] - cpu->regs[regx];
+                            {
+                                bool flag = cpu->regs[regy] >= cpu->regs[regx];
+                                cpu->regs[regx] = cpu->regs[regy] - cpu->regs[regx];
+                                cpu->regs[VF] = flag;
+                            }
+                            break;
+                        case 0x6:
+                            {
+                                bool flag = cpu->regs[regy] & 0x01;
+                                cpu->regs[regx] = cpu->regs[regy] >> 1;
+                                cpu->regs[VF] = flag;
+                            }
                             break;
                         case 0xe:
-                            cpu->regs[VF] = cpu->regs[regy] & 0x8000;
-                            cpu->regs[regx] = cpu->regs[regy] << 1;
+                            {
+                                bool flag = cpu->regs[regy] & 0x80;
+                                cpu->regs[regx] = cpu->regs[regy] << 1;
+                                cpu->regs[VF] = flag;
+                            }
                             break;
                         default:
                             std::cerr << "Illegal operation " << std::hex << instruction << '\n';
@@ -264,13 +272,6 @@ namespace chip8 {
                         cpu->regs[VF] = (cpu->I > 0x1000)? 1 : 0;
                         break;
                     case 0x0A:
-                        // SDL_WaitEvent(&event);
-                        // if (event.type == SDL_KEYDOWN) {
-                        //     int pressed_key = KEYS[event.key.keysym.scancode];
-                        //     cpu->regs[REG_X(instruction)] = pressed_key;
-                        // } else {
-                        //     exec_instr(instruction);
-                        // }
                         key_any_requested = true;
                         break;
                     case 0x29:
