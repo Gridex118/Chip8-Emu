@@ -14,4 +14,4 @@ find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 target_link_libraries(dummy.out ${SDL2_LIBRARIES})
 
-target_compile_options(dummy.out PRIVATE -Wall -Wextra)
+target_compile_options(dummy.out PRIVATE -Wall -Wextra -g -O0)
