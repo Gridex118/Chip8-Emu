@@ -69,8 +69,9 @@ namespace chip8 {
             std::string runnig_program;
             Chip8Display *display;
             SDL_Event event;
-            u_int8_t requested_key = 0;
+            bool key_any_requested = false;
             bool key_check_requested = false;
+            u_int8_t requested_key = 0;
             bool key_skip_xor_mask = 0;
             std::array<u_int8_t, MEMCELL_MAX> memory = {};
             std::array<u_int16_t, STACK_MAX> stack = {};

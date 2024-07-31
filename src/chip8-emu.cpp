@@ -170,48 +170,51 @@ namespace chip8 {
                 cpu->regs[REG_X(instruction)] += NN(instruction);
                 break;
             case 0x8:
-                switch (instruction & 0x000F) {
-                    case 0x0:
-                        cpu->regs[REG_X(instruction)] = cpu->regs[REG_Y(instruction)];
-                        break;
-                    case 0x1:
-                        cpu->regs[REG_X(instruction)] |= cpu->regs[REG_Y(instruction)];
-                        break;
-                    case 0x2:
-                        cpu->regs[REG_X(instruction)] &= cpu->regs[REG_Y(instruction)];
-                        break;
-                    case 0x3:
-                        cpu->regs[REG_X(instruction)] ^= cpu->regs[REG_Y(instruction)];
-                        break;
-                    case 0x4:
-                        {
-                            int regx = REG_X(instruction);
-                            u_int8_t reg_pre_addition = cpu->regs[regx];
-                            cpu->regs[regx] += cpu->regs[REG_Y(instruction)];
-                            // If, after an addition, the reg is smaller than before, it must have overflown
-                            cpu->regs[VF] = (reg_pre_addition > cpu->regs[regx]);
-                        }
-                        break;
-                    case 0x5:
-                        cpu->regs[REG_X(instruction)] -= cpu->regs[REG_Y(instruction)];
-                        cpu->regs[VF] = cpu->regs[REG_X(instruction)] > cpu->regs[REG_Y(instruction)];
-                        break;
-                    case 0x6:
-                        cpu->regs[VF] = cpu->regs[REG_Y(instruction)] & 0x0001;
-                        cpu->regs[REG_X(instruction)] = cpu->regs[REG_Y(instruction)] >> 1;
-                        break;
-                    case 0x7:
-                        cpu->regs[REG_Y(instruction)] -= cpu->regs[REG_X(instruction)];
-                        cpu->regs[VF] = cpu->regs[REG_Y(instruction)] > cpu->regs[REG_X(instruction)];
-                        break;
-                    case 0xe:
-                        cpu->regs[VF] = cpu->regs[REG_Y(instruction)] & 0x8000;
-                        cpu->regs[REG_X(instruction)] = cpu->regs[REG_Y(instruction)] << 1;
-                        break;
-                    default:
-                        std::cerr << "Illegal operation " << std::hex << instruction << '\n';
-                        return -1;
-                        break;
+                {
+                    int regx = REG_X(instruction);
+                    int regy = REG_Y(instruction);
+                    switch (instruction & 0x000F) {
+                        case 0x0:
+                            cpu->regs[regx] = cpu->regs[regy];
+                            break;
+                        case 0x1:
+                            cpu->regs[regx] |= cpu->regs[regy];
+                            break;
+                        case 0x2:
+                            cpu->regs[regx] &= cpu->regs[regy];
+                            break;
+                        case 0x3:
+                            cpu->regs[regx] ^= cpu->regs[regy];
+                            break;
+                        case 0x4:
+                            {
+                                u_int8_t reg_pre_addition = cpu->regs[regx];
+                                cpu->regs[regx] += cpu->regs[regy];
+                                // If, after an addition, the reg is smaller than before, it must have overflown
+                                cpu->regs[VF] = (reg_pre_addition > cpu->regs[regx]);
+                            }
+                            break;
+                        case 0x5:
+                            cpu->regs[VF] = cpu->regs[regx] > cpu->regs[REG_Y(instruction)];
+                            cpu->regs[regx] -= cpu->regs[regy];
+                            break;
+                        case 0x6:
+                            cpu->regs[VF] = cpu->regs[regy] & 0x0001;
+                            cpu->regs[regx] = cpu->regs[regy] >> 1;
+                            break;
+                        case 0x7:
+                            cpu->regs[VF] = cpu->regs[regy] > cpu->regs[regx];
+                            cpu->regs[regx] = cpu->regs[regy] - cpu->regs[regx];
+                            break;
+                        case 0xe:
+                            cpu->regs[VF] = cpu->regs[regy] & 0x8000;
+                            cpu->regs[regx] = cpu->regs[regy] << 1;
+                            break;
+                        default:
+                            std::cerr << "Illegal operation " << std::hex << instruction << '\n';
+                            return -1;
+                            break;
+                    }
                 }
                 break;
             case 0xa:
@@ -261,14 +264,14 @@ namespace chip8 {
                         cpu->regs[VF] = (cpu->I > 0x1000)? 1 : 0;
                         break;
                     case 0x0A:
-                        SDL_WaitEvent(&event);
-                        if (event.type == SDL_KEYDOWN) {
-                            int pressed_key = KEYS[event.key.keysym.scancode];
-                            cpu->regs[REG_X(instruction)] = pressed_key;
-                            std::cout << pressed_key << '\n';
-                        } else {
-                            exec_instr(instruction);
-                        }
+                        // SDL_WaitEvent(&event);
+                        // if (event.type == SDL_KEYDOWN) {
+                        //     int pressed_key = KEYS[event.key.keysym.scancode];
+                        //     cpu->regs[REG_X(instruction)] = pressed_key;
+                        // } else {
+                        //     exec_instr(instruction);
+                        // }
+                        key_any_requested = true;
                         break;
                     case 0x29:
                         {
@@ -324,6 +327,12 @@ namespace chip8 {
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) {
                     running = false;
+                } else if (key_any_requested) {
+                    if (!(event.type == SDL_KEYDOWN)) {
+                        cpu->PC -= 2;
+                    } else {
+                        key_any_requested = false;
+                    }
                 }
             }
             if (key_check_requested) {
