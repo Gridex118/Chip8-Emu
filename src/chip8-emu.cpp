@@ -212,15 +212,15 @@ namespace chip8 {
                             break;
                         case 0x6:
                             {
-                                bool flag = cpu->regs[regy] & 0x01;
-                                cpu->regs[regx] = cpu->regs[regy] >> 1;
+                                bool flag = cpu->regs[regx] & 0x01;
+                                cpu->regs[regx] = cpu->regs[regx] >> 1;
                                 cpu->regs[VF] = flag;
                             }
                             break;
                         case 0xe:
                             {
-                                bool flag = cpu->regs[regy] & 0x80;
-                                cpu->regs[regx] = cpu->regs[regy] << 1;
+                                bool flag = cpu->regs[regx] & 0x80;
+                                cpu->regs[regx] = cpu->regs[regx] << 1;
                                 cpu->regs[VF] = flag;
                             }
                             break;
