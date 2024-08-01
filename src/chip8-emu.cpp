@@ -337,14 +337,17 @@ namespace chip8 {
                 }
             }
             if (key_any_requested) {
+                bool hit = false;
                 SDL_WaitEvent(&event);
                 if (event.type == SDL_KEYDOWN) {
                     u_int8_t scancode = event.key.keysym.scancode;
                     if (KEYS.find(scancode) != KEYS.end()) {
+                        hit = true;
                         cpu->regs[key_any_requested_reg] = KEYS[scancode];
                         key_any_requested = false;
                     }
-                } else {
+                }
+                if (!hit) {
                     cpu->PC -= 2;
                 }
             }
