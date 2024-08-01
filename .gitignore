@@ -2,3 +2,4 @@
 .ccls-cache/
 .gdb*
 .lsp/
+build/

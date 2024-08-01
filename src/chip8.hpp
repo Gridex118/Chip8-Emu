@@ -4,11 +4,25 @@
 #include <string>
 #include <array>
 #include <SDL2/SDL.h>
+#include <chrono>
 
 // 4096 cells, 1B each = 4096B = 4KiB
 #define MEMCELL_MAX 4096
 // 16 cells, 2B each = 32B
 #define STACK_MAX 16
+
+#define PIXEL_SCALE_FACTOR (10)
+#define SCALE_PX(px) (PIXEL_SCALE_FACTOR * px)
+#define REAL_WIDTH 64
+#define REAL_HEIGHT 32
+#define WINDOW_WIDTH (SCALE_PX(REAL_WIDTH))
+#define WINDOW_HEIGHT (SCALE_PX(REAL_HEIGHT))
+
+#define FPS 700
+#define FRAMEDELAY (1000 / FPS)
+
+using Clock = std::chrono::steady_clock;
+using std::chrono::milliseconds;
 
 namespace chip8 {
 
@@ -28,10 +42,15 @@ namespace chip8 {
     class Chip8Display {
         public:
             Chip8Display() {};
-            ~Chip8Display() {};
+            ~Chip8Display();
+            int init(std::string program);
+            void clear();
+            bool draw(u_int8_t *sprite_base_addr, int x, int y, int rows);
         private:
             SDL_Window *window;
-            SDL_Surface *screen_surface;
+            SDL_Renderer *renderer;
+            bool pixels_on_screen[REAL_HEIGHT][REAL_WIDTH] = {};
+            void render_screen();
     };
 
     struct Chip8Cpu {
@@ -42,6 +61,9 @@ namespace chip8 {
         u_int16_t PC;   // Program Counter
         u_int16_t I;    // Index Register
         std::array<u_int8_t, TIMERS_MAX> timers = {};
+        inline void decrement_timers();
+        private:
+            std::chrono::time_point<Clock> last_time_stamp = Clock::now();
     };
 
     class Chip8Emu {
@@ -52,10 +74,18 @@ namespace chip8 {
         private:
             std::string runnig_program;
             Chip8Display *display;
+            SDL_Event event;
+            bool key_any_requested = false;
+            int key_any_requested_reg = 0;
+            bool key_check_requested = false;
+            u_int8_t requested_key = 0;
+            bool key_skip_xor_mask = 0;
             std::array<u_int8_t, MEMCELL_MAX> memory = {};
             std::array<u_int16_t, STACK_MAX> stack = {};
             Chip8Cpu *cpu;
             int load_program();
+            inline u_int16_t fetch_instr();
+            int exec_instr(u_int16_t &instruction);
     };
 
 }
