@@ -41,7 +41,6 @@ namespace chip8 {
 
     class Chip8Display {
         public:
-            Chip8Display() {};
             ~Chip8Display();
             int init(std::string program);
             void clear();
@@ -54,8 +53,6 @@ namespace chip8 {
     };
 
     struct Chip8Cpu {
-        Chip8Cpu() {};
-        ~Chip8Cpu() {};
         std::array<u_int8_t, REG_MAX> regs = {};
         u_int8_t SP;    // Stack Pointer
         u_int16_t PC;   // Program Counter
@@ -68,8 +65,6 @@ namespace chip8 {
 
     class Chip8Keypad {
         public:
-            Chip8Keypad() {};
-            ~Chip8Keypad() {};
             void request_halting_input(u_int8_t *store_at);
             void request_key(u_int8_t key, bool xor_mask);
             void handle_input(SDL_Event *event, const Uint8 *kbstate, u_int16_t *program_counter);
