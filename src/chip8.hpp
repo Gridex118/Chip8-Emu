@@ -66,6 +66,21 @@ namespace chip8 {
             std::chrono::time_point<Clock> last_time_stamp = Clock::now();
     };
 
+    class Chip8Keypad {
+        public:
+            Chip8Keypad() {};
+            ~Chip8Keypad() {};
+            void request_halting_input(u_int8_t *store_at);
+            void request_key(u_int8_t key, bool xor_mask);
+            void handle_input(SDL_Event *event, const Uint8 *kbstate, u_int16_t *program_counter);
+        private:
+            bool halting_input_requested = false;
+            u_int8_t *storage_reg;
+            bool key_check_requested = false;
+            u_int8_t requested_key;
+            bool key_skip_xor_mask = 0;
+    };
+
     class Chip8Emu {
         public:
             Chip8Emu();
@@ -74,14 +89,10 @@ namespace chip8 {
         private:
             std::string runnig_program;
             Chip8Display *display;
-            bool key_any_requested = false;
-            int key_any_requested_reg = 0;
-            bool key_check_requested = false;
-            u_int8_t requested_key = 0;
-            bool key_skip_xor_mask = 0;
             std::array<u_int8_t, MEMCELL_MAX> memory = {};
             std::array<u_int16_t, STACK_MAX> stack = {};
             Chip8Cpu *cpu;
+            Chip8Keypad *keypad;
             int load_program();
             inline u_int16_t fetch_instr();
             int exec_instr(u_int16_t &instruction);

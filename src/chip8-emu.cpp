@@ -1,7 +1,6 @@
 #include "chip8.hpp"
 #include <iostream>
 #include <cstdlib>
-#include <unordered_map>
 
 #define arrlen(arr) (sizeof arr / sizeof arr[0])
 
@@ -10,28 +9,6 @@
 #define NNN(instr) (instr & 0x0FFF)
 #define NN(instr) (instr & 0x00FF)
 #define N(instr) (instr & 0x000F)
-
-std::unordered_map<u_int8_t, int> KEYS = {
-    {SDL_SCANCODE_1, 0x1}, {SDL_SCANCODE_2, 0x2},
-    {SDL_SCANCODE_3, 0x3}, {SDL_SCANCODE_4, 0xc},
-    {SDL_SCANCODE_Q, 0X4}, {SDL_SCANCODE_W, 0X5},
-    {SDL_SCANCODE_E, 0X6}, {SDL_SCANCODE_R, 0XD},
-    {SDL_SCANCODE_A, 0X7}, {SDL_SCANCODE_S, 0X8},
-    {SDL_SCANCODE_D, 0X9}, {SDL_SCANCODE_F, 0XE},
-    {SDL_SCANCODE_Z, 0XA}, {SDL_SCANCODE_X, 0X0},
-    {SDL_SCANCODE_C, 0XB}, {SDL_SCANCODE_V, 0XF}
-};
-
-std::unordered_map<int, u_int8_t> KEYS_REV = {
-    {0x1, SDL_SCANCODE_1}, {0x2, SDL_SCANCODE_2},
-    {0x3, SDL_SCANCODE_3}, {0xc, SDL_SCANCODE_4},
-    {0X4, SDL_SCANCODE_Q}, {0X5, SDL_SCANCODE_W},
-    {0X6, SDL_SCANCODE_E}, {0XD, SDL_SCANCODE_R},
-    {0X7, SDL_SCANCODE_A}, {0X8, SDL_SCANCODE_S},
-    {0X9, SDL_SCANCODE_D}, {0XE, SDL_SCANCODE_F},
-    {0XA, SDL_SCANCODE_Z}, {0X0, SDL_SCANCODE_X},
-    {0XB, SDL_SCANCODE_C}, {0XF, SDL_SCANCODE_V},
-};
 
 uint8_t FONT_DATA[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0,   // 0
@@ -89,6 +66,7 @@ namespace chip8 {
     Chip8Emu::Chip8Emu() {
         display = new Chip8Display();
         cpu = new Chip8Cpu();
+        keypad = new Chip8Keypad();
         for (size_t i = 0; i < arrlen(FONT_DATA); i++) {
             memory[i] = FONT_DATA[i];
         }
@@ -97,6 +75,7 @@ namespace chip8 {
     Chip8Emu::~Chip8Emu() {
         delete display;
         delete cpu;
+        delete keypad;
     }
 
     int Chip8Emu::load_program() {
@@ -246,16 +225,14 @@ namespace chip8 {
                         );
                 break;
             case 0xe:
-                requested_key = KEYS_REV[cpu->regs[REG_X(instruction)]];
-                key_check_requested = true;
                 switch (NN(instruction)) {
                     case 0x9e:
                         // Skip next instruction if key VX is down
-                        key_skip_xor_mask = 1;
+                        keypad->request_key(cpu->regs[REG_X(instruction)], 1);
                         break;
                     case 0xa1:
                         // Skip next instruction if key VX is up
-                        key_skip_xor_mask = 0;
+                        keypad->request_key(cpu->regs[REG_X(instruction)], 0);
                         break;
                     default:
                         std::cerr << "Illegal Operation requested\n";
@@ -277,8 +254,7 @@ namespace chip8 {
                         cpu->I += cpu->regs[REG_X(instruction)];
                         break;
                     case 0x0A:
-                        key_any_requested_reg = REG_X(instruction);
-                        key_any_requested = true;
+                        keypad->request_halting_input(&cpu->regs[REG_X(instruction)]);
                         break;
                     case 0x29:
                         {
@@ -337,27 +313,7 @@ namespace chip8 {
                     running = false;
                 }
             }
-            if (key_any_requested) {
-                bool hit = false;
-                SDL_WaitEvent(&event);
-                if (event.type == SDL_KEYDOWN) {
-                    u_int8_t scancode = event.key.keysym.scancode;
-                    if (KEYS.find(scancode) != KEYS.end()) {
-                        hit = true;
-                        cpu->regs[key_any_requested_reg] = KEYS[scancode];
-                        key_any_requested = false;
-                    }
-                }
-                if (!hit) {
-                    cpu->PC -= 2;
-                }
-            }
-            if (key_check_requested) {
-                key_check_requested = false;
-                if (!(kbstate[requested_key] ^ key_skip_xor_mask)) {
-                    cpu->PC += 2;
-                }
-            }
+            keypad->handle_input(&event, kbstate, &cpu->PC);
             cpu->decrement_timers();
             frame_time = SDL_GetTicks() - frame_start;
             if (FRAMEDELAY > frame_time) {

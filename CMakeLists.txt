@@ -6,6 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(DUMMY_SRC
     src/chip8-disp.cpp
     src/chip8-emu.cpp
+    src/chip8-keypad.cpp
     src/dummy.cpp
 )
 
