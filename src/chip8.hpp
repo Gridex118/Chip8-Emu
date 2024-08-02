@@ -81,6 +81,11 @@ namespace chip8 {
             bool key_skip_xor_mask = 0;
     };
 
+    struct Memory {
+        std::array<u_int8_t, MEMCELL_MAX> ram = {};
+        std::array<u_int16_t, STACK_MAX> stack = {};
+    };
+
     class Chip8Emu {
         public:
             Chip8Emu();
@@ -89,10 +94,9 @@ namespace chip8 {
         private:
             std::string runnig_program;
             Chip8Display *display;
-            std::array<u_int8_t, MEMCELL_MAX> memory = {};
-            std::array<u_int16_t, STACK_MAX> stack = {};
             Chip8Cpu *cpu;
             Chip8Keypad *keypad;
+            Memory *memory;
             int load_program();
             inline u_int16_t fetch_instr();
             int exec_instr(u_int16_t &instruction);

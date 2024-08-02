@@ -67,8 +67,9 @@ namespace chip8 {
         display = new Chip8Display();
         cpu = new Chip8Cpu();
         keypad = new Chip8Keypad();
+        memory = new Memory;
         for (size_t i = 0; i < arrlen(FONT_DATA); i++) {
-            memory[i] = FONT_DATA[i];
+            memory->ram[i] = FONT_DATA[i];
         }
     }
 
@@ -76,6 +77,7 @@ namespace chip8 {
         delete display;
         delete cpu;
         delete keypad;
+        delete memory;
     }
 
     int Chip8Emu::load_program() {
@@ -90,13 +92,13 @@ namespace chip8 {
             std::cerr << "Empty program source\n";
             return -1;
         }
-        fread(&memory[0x200], sizeof(u_int8_t), size, source);
+        fread(&memory->ram[0x200], sizeof(u_int8_t), size, source);
         fclose(source);
         return 0;
     }
 
     inline u_int16_t Chip8Emu::fetch_instr() {
-        u_int16_t instruction = (memory[0x200 + cpu->PC] << 8) + (memory[0x200 + cpu->PC + 1]);
+        u_int16_t instruction = (memory->ram[0x200 + cpu->PC] << 8) + (memory->ram[0x200 + cpu->PC + 1]);
         cpu->PC += 2;
         return instruction;
     }
@@ -110,7 +112,7 @@ namespace chip8 {
                         break;
                     case 0xEE:
                         // Return from function call
-                        cpu->PC = stack[--cpu->SP];
+                        cpu->PC = memory->stack[--cpu->SP];
                         break;
                     default:
                         // Ignore; unimplemented machine instructions
@@ -118,7 +120,7 @@ namespace chip8 {
                 }
                 break;
             case 0x2:
-                stack[cpu->SP++] = cpu->PC;
+                memory->stack[cpu->SP++] = cpu->PC;
                 // Fallthrough here; 0x2NNN requires jumping
             case 0x1:
                 // Jump to address
@@ -220,7 +222,7 @@ namespace chip8 {
                 cpu->regs[REG_X(instruction)] = rand() & NN(instruction);
                 break;
             case 0xd:
-                cpu->regs[VF] = display->draw(&memory[cpu->I], cpu->regs[REG_X(instruction)],
+                cpu->regs[VF] = display->draw(&memory->ram[cpu->I], cpu->regs[REG_X(instruction)],
                         cpu->regs[REG_Y(instruction)], N(instruction)
                         );
                 break;
@@ -267,16 +269,16 @@ namespace chip8 {
                         }
                         break;
                     case 0x33:
-                        store_decimal(&memory[cpu->I], cpu->regs[REG_X(instruction)]);
+                        store_decimal(&memory->ram[cpu->I], cpu->regs[REG_X(instruction)]);
                         break;
                     case 0x55:
                         for (int x = 0; x <= REG_X(instruction); x++) {
-                            memory[cpu->I + x] = cpu->regs[x];
+                            memory->ram[cpu->I + x] = cpu->regs[x];
                         }
                         break;
                     case 0x65:
                         for (int x = 0; x <= REG_X(instruction); x++) {
-                            cpu->regs[x] = memory[cpu->I + x];
+                            cpu->regs[x] = memory->ram[cpu->I + x];
                         }
                         break;
                     default:
