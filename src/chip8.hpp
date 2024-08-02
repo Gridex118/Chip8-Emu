@@ -74,7 +74,6 @@ namespace chip8 {
         private:
             std::string runnig_program;
             Chip8Display *display;
-            SDL_Event event;
             bool key_any_requested = false;
             int key_any_requested_reg = 0;
             bool key_check_requested = false;

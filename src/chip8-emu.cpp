@@ -322,6 +322,7 @@ namespace chip8 {
             return -1;
         }
         const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
+        SDL_Event event;
         bool running = true;
         int frame_time;
         while (running) {
