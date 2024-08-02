@@ -24,6 +24,8 @@
 using Clock = std::chrono::steady_clock;
 using std::chrono::milliseconds;
 
+extern uint8_t FONT_DATA[];
+
 namespace chip8 {
 
     // General purpose registers
@@ -52,17 +54,6 @@ namespace chip8 {
             void render_screen();
     };
 
-    struct Chip8Cpu {
-        std::array<u_int8_t, REG_MAX> regs = {};
-        u_int8_t SP;    // Stack Pointer
-        u_int16_t PC;   // Program Counter
-        u_int16_t I;    // Index Register
-        std::array<u_int8_t, TIMERS_MAX> timers = {};
-        inline void decrement_timers();
-        private:
-            std::chrono::time_point<Clock> last_time_stamp = Clock::now();
-    };
-
     class Chip8Keypad {
         public:
             void request_halting_input(u_int8_t *store_at);
@@ -81,6 +72,28 @@ namespace chip8 {
         std::array<u_int16_t, STACK_MAX> stack = {};
     };
 
+    struct Bus {
+        Memory *memory;
+        Chip8Display *display;
+        Chip8Keypad *keypad;
+    };
+
+    struct Chip8Cpu {
+        Chip8Cpu(Memory *memory, Chip8Display *display, Chip8Keypad *keypad);
+        Bus bus;
+        std::array<u_int8_t, REG_MAX> regs = {};
+        u_int8_t SP;    // Stack Pointer
+        u_int16_t PC;   // Program Counter
+        u_int16_t I;    // Index Register
+        std::array<u_int8_t, TIMERS_MAX> timers = {};
+        void decrement_timers();
+        int exec_next();
+        private:
+            u_int16_t instruction;
+            inline void fetch_instr();
+            std::chrono::time_point<Clock> last_time_stamp = Clock::now();
+    };
+
     class Chip8Emu {
         public:
             Chip8Emu();
@@ -89,12 +102,10 @@ namespace chip8 {
         private:
             std::string runnig_program;
             Chip8Display *display;
-            Chip8Cpu *cpu;
             Chip8Keypad *keypad;
             Memory *memory;
+            Chip8Cpu *cpu;
             int load_program();
-            inline u_int16_t fetch_instr();
-            int exec_instr(u_int16_t &instruction);
     };
 
 }
