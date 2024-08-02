@@ -18,9 +18,6 @@
 #define WINDOW_WIDTH (SCALE_PX(REAL_WIDTH))
 #define WINDOW_HEIGHT (SCALE_PX(REAL_HEIGHT))
 
-#define FPS 540
-#define FRAMEDELAY (1000 / FPS)
-
 using Clock = std::chrono::steady_clock;
 using std::chrono::milliseconds;
 

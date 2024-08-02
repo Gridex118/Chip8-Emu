@@ -4,6 +4,9 @@
 
 #define arrlen(arr) (sizeof arr / sizeof arr[0])
 
+#define IPS 540
+#define FRAMEDELAY (1000 / IPS)
+
 uint8_t FONT_DATA[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0,   // 0
     0x20, 0x60, 0x20, 0x20, 0x70,   // 1
