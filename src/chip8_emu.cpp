@@ -4,9 +4,6 @@
 
 #define arrlen(arr) (sizeof arr / sizeof arr[0])
 
-#define IPS 540
-#define FRAMEDELAY (1000 / IPS)
-
 uint8_t FONT_DATA[] = {
     0xF0, 0x90, 0x90, 0x90, 0xF0,   // 0
     0x20, 0x60, 0x20, 0x20, 0x70,   // 1
@@ -71,7 +68,8 @@ namespace chip8 {
         return 0;
     }
 
-    int Chip8Emu::run_program(std::string program, const short display_scaling_factor) {
+    int Chip8Emu::run_program(std::string program, const short display_scaling_factor, const short cpu_freq) {
+        const double FRAMEDELAY = 1000 / cpu_freq;
         runnig_program = program;
         display->init(runnig_program, display_scaling_factor);
         if (load_program() != 0) {
@@ -101,10 +99,6 @@ namespace chip8 {
             }
         }
         return 0;
-    }
-
-    int Chip8Emu::run_program(std::string program) {
-        return run_program(program, 10);
     }
 
 }

@@ -91,8 +91,7 @@ namespace chip8 {
         public:
             Chip8Emu();
             ~Chip8Emu();
-            int run_program(std::string program, const short display_scaling_factor);
-            int run_program(std::string program);
+            int run_program(std::string program, const short display_scaling_factor, const short cpu_freq);
         private:
             std::string runnig_program;
             Chip8Display *display;
