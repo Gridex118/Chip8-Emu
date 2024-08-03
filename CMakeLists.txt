@@ -4,10 +4,10 @@ project(Chip8 CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(DUMMY_SRC
-    src/chip8-disp.cpp
-    src/chip8-emu.cpp
-    src/chip8-keypad.cpp
-    src/chip8-cpu.cpp
+    src/chip8_disp.cpp
+    src/chip8_emu.cpp
+    src/chip8_keypad.cpp
+    src/chip8_cpu.cpp
     src/dummy.cpp
 )
 
