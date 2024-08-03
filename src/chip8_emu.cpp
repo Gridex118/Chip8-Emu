@@ -71,9 +71,9 @@ namespace chip8 {
         return 0;
     }
 
-    int Chip8Emu::run_program(std::string program) {
+    int Chip8Emu::run_program(std::string program, const short display_scaling_factor) {
         runnig_program = program;
-        display->init(runnig_program);
+        display->init(runnig_program, display_scaling_factor);
         if (load_program() != 0) {
             std::cerr << "Error while loading program to memory\n";
             return -1;
@@ -101,6 +101,10 @@ namespace chip8 {
             }
         }
         return 0;
+    }
+
+    int Chip8Emu::run_program(std::string program) {
+        return run_program(program, 10);
     }
 
 }

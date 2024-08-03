@@ -11,12 +11,8 @@
 // 16 cells, 2B each = 32B
 #define STACK_MAX 16
 
-#define PIXEL_SCALE_FACTOR (10)
-#define SCALE_PX(px) (PIXEL_SCALE_FACTOR * px)
 #define REAL_WIDTH 64
 #define REAL_HEIGHT 32
-#define WINDOW_WIDTH (SCALE_PX(REAL_WIDTH))
-#define WINDOW_HEIGHT (SCALE_PX(REAL_HEIGHT))
 
 using Clock = std::chrono::steady_clock;
 using std::chrono::milliseconds;
@@ -41,7 +37,7 @@ namespace chip8 {
     class Chip8Display {
         public:
             ~Chip8Display();
-            int init(std::string program);
+            int init(std::string program, const short scaling_factor);
             void clear();
             bool draw(u_int8_t *sprite_base_addr, int x, int y, int rows);
         private:
@@ -95,6 +91,7 @@ namespace chip8 {
         public:
             Chip8Emu();
             ~Chip8Emu();
+            int run_program(std::string program, const short display_scaling_factor);
             int run_program(std::string program);
         private:
             std::string runnig_program;

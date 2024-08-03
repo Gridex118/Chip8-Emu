@@ -9,13 +9,13 @@ namespace chip8 {
         SDL_Quit();
     }
 
-    int Chip8Display::init(std::string program) {
+    int Chip8Display::init(std::string program, const short scaling_factor) {
         if (SDL_Init(SDL_INIT_VIDEO) < 0) {
             std::cerr << "Failed to initialize SDL: " << SDL_GetError() << '\n';
             return -1;
         }
         window = SDL_CreateWindow(program.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-                WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_SHOWN);
+                (scaling_factor * REAL_WIDTH), (scaling_factor * REAL_HEIGHT), SDL_WINDOW_SHOWN);
         if (window == NULL) {
             std::cerr << "Failed to create window: " << SDL_GetError() << '\n';
             return -1;
