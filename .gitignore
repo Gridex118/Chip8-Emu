@@ -3,3 +3,4 @@
 .gdb*
 .lsp/
 build/
+.cache/
