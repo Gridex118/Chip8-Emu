@@ -1,5 +1,6 @@
 #include "chip8.hpp"
 #include <iostream>
+#include <fstream>
 #include <cstdlib>
 
 #define arrlen(arr) (sizeof arr / sizeof arr[0])
@@ -23,13 +24,9 @@ uint8_t FONT_DATA[] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80    // F
 };
 
-inline size_t filesize(const char *file_name) {
-    FILE *file = fopen(file_name, "rb");
-    if (file == NULL) return 0;
-    fseek(file, 0, SEEK_END);
-    size_t size = ftell(file);
-    fclose(file);
-    return size;
+inline std::ifstream::pos_type filesize(std::string file_name) {
+    std::ifstream in(file_name, std::ios::ate | std::iostream::binary);
+    return in.tellg();
 }
 
 namespace chip8 {
@@ -52,19 +49,13 @@ Chip8Emu::~Chip8Emu() {
 }
 
 int Chip8Emu::load_program() {
-    FILE *source = fopen(runnig_program.c_str(), "rb");
-    if (source == NULL) {
+    std::ifstream source(runnig_program, std::ios::in | std::ios::binary);
+    if (source.is_open()) {
+        source.read(reinterpret_cast<char*>(memory->ram.data() + 0x200), filesize(runnig_program));
+    } else {
         std::cerr << "Could not open file\n";
-        std::cerr << errno << '\n';
         return -1;
     }
-    size_t size = filesize(runnig_program.c_str());
-    if (size == 0) {
-        std::cerr << "Empty program source\n";
-        return -1;
-    }
-    fread(&memory->ram[0x200], sizeof(u_int8_t), size, source);
-    fclose(source);
     return 0;
 }
 
