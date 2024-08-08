@@ -59,8 +59,8 @@ private:
 };
 
 struct Memory {
-    std::array<u_int8_t, MEMCELL_MAX> ram = {};
-    std::array<u_int16_t, STACK_MAX> stack = {};
+    std::array<u_int8_t, MEMCELL_MAX> ram{};
+    std::array<u_int16_t, STACK_MAX> stack{};
 };
 
 struct Bus {
@@ -72,11 +72,11 @@ struct Bus {
 struct Chip8Cpu {
     Chip8Cpu(std::shared_ptr<Memory> memory, std::shared_ptr<Chip8Display> display, std::shared_ptr<Chip8Keypad> keypad);
     Bus bus;
-    std::array<u_int8_t, REG_MAX> regs = {};
+    std::array<u_int8_t, REG_MAX> regs{};
     u_int8_t SP{0};    // Stack Pointer
     u_int16_t PC{0x200};   // Program Counter
     u_int16_t I{0};    // Index Register
-    std::array<u_int8_t, TIMERS_MAX> timers = {};
+    std::array<u_int8_t, TIMERS_MAX> timers{};
     void decrement_timers();
     int exec_next();
 private:
