@@ -26,39 +26,39 @@ const std::unordered_map<int, u_int8_t> KEYS_REV = {
 
 namespace chip8 {
 
-    void Chip8Keypad::request_halting_input(u_int8_t *store_at) {
-        halting_input_requested = true;
-        storage_reg = store_at;
-    }
+void Chip8Keypad::request_halting_input(u_int8_t *store_at) {
+    halting_input_requested = true;
+    storage_reg = store_at;
+}
 
-    void Chip8Keypad::request_key(u_int8_t key, bool xor_mask) {
-        key_check_requested = true;
-        requested_key = KEYS_REV.at(key);
-        key_skip_xor_mask = xor_mask;
-    }
+void Chip8Keypad::request_key(u_int8_t key, bool xor_mask) {
+    key_check_requested = true;
+    requested_key = KEYS_REV.at(key);
+    key_skip_xor_mask = xor_mask;
+}
 
-    void Chip8Keypad::handle_input(SDL_Event *event, const Uint8 *kbstate, u_int16_t *program_counter) {
-        if (halting_input_requested) {
-            bool hit = false;
-            SDL_WaitEvent(event);
-            if (event->type == SDL_KEYDOWN) {
-                u_int8_t scancode = event->key.keysym.scancode;
-                if (KEYS.find(scancode) != KEYS.end()) {
-                    hit = true;
-                    *storage_reg = KEYS.at(scancode);
-                    halting_input_requested = false;
-                }
-            }
-            if (!hit) {
-                *program_counter -= 2;
+void Chip8Keypad::handle_input(SDL_Event *event, const Uint8 *kbstate, u_int16_t *program_counter) {
+    if (halting_input_requested) {
+        bool hit = false;
+        SDL_WaitEvent(event);
+        if (event->type == SDL_KEYDOWN) {
+            u_int8_t scancode = event->key.keysym.scancode;
+            if (KEYS.find(scancode) != KEYS.end()) {
+                hit = true;
+                *storage_reg = KEYS.at(scancode);
+                halting_input_requested = false;
             }
         }
-        if (key_check_requested) {
-            key_check_requested = false;
-            if (!(kbstate[requested_key] ^ key_skip_xor_mask)) {
-                *program_counter += 2;
-            }
+        if (!hit) {
+            *program_counter -= 2;
         }
     }
+    if (key_check_requested) {
+        key_check_requested = false;
+        if (!(kbstate[requested_key] ^ key_skip_xor_mask)) {
+            *program_counter += 2;
+        }
+    }
+}
 
 }

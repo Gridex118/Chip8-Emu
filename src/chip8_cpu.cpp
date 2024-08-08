@@ -15,10 +15,6 @@ inline void store_decimal(u_int8_t *storage_base_addr, int number) {
     }
 }
 
-inline u_int16_t font_addr(u_int8_t font) {
-    return (5 * font);
-}
-
 namespace chip8 {
 
 Chip8Cpu::Chip8Cpu(std::shared_ptr<Memory> memory, std::shared_ptr<Chip8Display> display, std::shared_ptr<Chip8Keypad> keypad) {
@@ -206,6 +202,7 @@ int Chip8Cpu::exec_next() {
                             std::cerr << "Trying to access unknown font\n";
                             return -1;
                         }
+                        auto font_addr = [](u_int8_t font){ return 5 * font; };
                         I = font_addr(font);
                     }
                     break;

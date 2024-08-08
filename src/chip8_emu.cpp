@@ -1,7 +1,6 @@
 #include "chip8.hpp"
 #include <iostream>
 #include <fstream>
-#include <cstdlib>
 #include <memory>
 
 #define arrlen(arr) (sizeof arr / sizeof arr[0])
@@ -54,7 +53,7 @@ int Chip8Emu::load_program() {
 }
 
 int Chip8Emu::run_program(std::string program, const short display_scaling_factor, const short cpu_freq) {
-    const double FRAMEDELAY = 1000 / cpu_freq;
+    const double FRAMEDELAY = 1000.0 / cpu_freq;
     runnig_program = program;
     display->init(runnig_program, display_scaling_factor);
     if (load_program() != 0) {
