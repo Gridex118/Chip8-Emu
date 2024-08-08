@@ -4,6 +4,7 @@
 #include <array>
 #include <SDL2/SDL.h>
 #include <chrono>
+#include <memory>
 
 // 4096 cells, 1B each = 4096B = 4KiB
 #define MEMCELL_MAX 4096
@@ -35,10 +36,10 @@ enum Timers {
 
 class Chip8Display {
 public:
-    ~Chip8Display();
     int init(std::string program, const short scaling_factor);
     void clear();
     [[nodiscard]] bool draw(u_int8_t *sprite_base_addr, int x, int y, int rows);
+    void quit_sdl() noexcept;
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
@@ -65,13 +66,13 @@ struct Memory {
 };
 
 struct Bus {
-    Memory *memory;
-    Chip8Display *display;
-    Chip8Keypad *keypad;
+    std::shared_ptr<Memory> memory;
+    std::shared_ptr<Chip8Display> display;
+    std::shared_ptr<Chip8Keypad> keypad;
 };
 
 struct Chip8Cpu {
-    Chip8Cpu(Memory *memory, Chip8Display *display, Chip8Keypad *keypad);
+    Chip8Cpu(std::shared_ptr<Memory> memory, std::shared_ptr<Chip8Display> display, std::shared_ptr<Chip8Keypad> keypad);
     Bus bus;
     std::array<u_int8_t, REG_MAX> regs = {};
     u_int8_t SP{0};    // Stack Pointer
@@ -89,14 +90,13 @@ private:
 class Chip8Emu {
 public:
     Chip8Emu();
-    ~Chip8Emu();
     int run_program(std::string program, const short display_scaling_factor, const short cpu_freq);
 private:
     std::string runnig_program;
-    Chip8Display *display;
-    Chip8Keypad *keypad;
-    Memory *memory;
-    Chip8Cpu *cpu;
+    std::shared_ptr<Chip8Display> display;
+    std::shared_ptr<Chip8Keypad> keypad;
+    std::shared_ptr<Memory> memory;
+    std::unique_ptr<Chip8Cpu> cpu;
     int load_program();
 };
 

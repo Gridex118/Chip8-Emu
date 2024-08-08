@@ -3,7 +3,7 @@
 
 namespace chip8 {
 
-Chip8Display::~Chip8Display() {
+void Chip8Display::quit_sdl() noexcept {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

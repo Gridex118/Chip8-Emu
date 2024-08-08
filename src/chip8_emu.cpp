@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include <memory>
 
 #define arrlen(arr) (sizeof arr / sizeof arr[0])
 
@@ -32,20 +33,13 @@ inline std::ifstream::pos_type filesize(std::string file_name) {
 namespace chip8 {
 
 Chip8Emu::Chip8Emu() {
-    display = new Chip8Display();
-    keypad = new Chip8Keypad();
-    memory = new Memory;
-    cpu = new Chip8Cpu(memory, display, keypad);
+    display = std::make_shared<Chip8Display>();
+    keypad = std::make_shared<Chip8Keypad>();
+    memory = std::make_shared<Memory>();
+    cpu = std::make_unique<Chip8Cpu>(memory, display, keypad);
     for (size_t i = 0; i < arrlen(FONT_DATA); i++) {
         memory->ram[i] = FONT_DATA[i];
     }
-}
-
-Chip8Emu::~Chip8Emu() {
-    delete display;
-    delete cpu;
-    delete keypad;
-    delete memory;
 }
 
 int Chip8Emu::load_program() {
@@ -89,6 +83,7 @@ int Chip8Emu::run_program(std::string program, const short display_scaling_facto
             SDL_Delay(FRAMEDELAY - frame_time);
         }
     }
+    display->quit_sdl();
     return 0;
 }
 

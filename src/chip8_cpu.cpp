@@ -21,7 +21,7 @@ inline u_int16_t font_addr(u_int8_t font) {
 
 namespace chip8 {
 
-Chip8Cpu::Chip8Cpu(Memory *memory, Chip8Display *display, Chip8Keypad *keypad) {
+Chip8Cpu::Chip8Cpu(std::shared_ptr<Memory> memory, std::shared_ptr<Chip8Display> display, std::shared_ptr<Chip8Keypad> keypad) {
     bus.memory = memory;
     bus.display = display;
     bus.keypad = keypad;
