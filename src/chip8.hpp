@@ -17,8 +17,6 @@
 using Clock = std::chrono::steady_clock;
 using std::chrono::milliseconds;
 
-extern uint8_t FONT_DATA[];
-
 namespace chip8 {
 
 // General purpose registers
