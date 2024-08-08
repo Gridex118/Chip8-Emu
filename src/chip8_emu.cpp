@@ -25,7 +25,7 @@ const u_int8_t FONT_DATA[] = {
 };
 
 inline std::ifstream::pos_type filesize(std::string file_name) {
-    std::ifstream in(file_name, std::ios::ate | std::iostream::binary);
+    std::ifstream in(file_name, std::ios::ate | std::ios::binary);
     return in.tellg();
 }
 
@@ -44,7 +44,7 @@ Chip8Emu::Chip8Emu() {
 int Chip8Emu::load_program() {
     std::ifstream source(runnig_program, std::ios::in | std::ios::binary);
     if (source.is_open()) {
-        source.read(reinterpret_cast<char*>(memory->ram.data() + 0x200), filesize(runnig_program));
+        source.read(reinterpret_cast<char*>(&memory->ram.at(0x200)), filesize(runnig_program));
     } else {
         std::cerr << "Could not open file\n";
         return -1;
