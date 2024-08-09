@@ -4,6 +4,7 @@ project(Chip8 CXX)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(DUMMY_SRC
+    src/delay.cpp
     src/chip8_disp.cpp
     src/chip8_emu.cpp
     src/chip8_keypad.cpp

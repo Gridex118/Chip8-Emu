@@ -23,15 +23,9 @@ Chip8Cpu::Chip8Cpu(std::shared_ptr<Memory> memory, std::shared_ptr<Chip8Display>
     bus.keypad = keypad;
 }
 
-void Chip8Cpu::decrement_timers() {
-    auto current_time_stamp = Clock::now();
-    milliseconds duration = std::chrono::duration_cast<milliseconds>(current_time_stamp - last_time_stamp);
-    milliseconds min_ms_elapsed = static_cast<milliseconds>(17);
-    if (duration >= min_ms_elapsed) {
-        last_time_stamp = current_time_stamp;
-        if (timers[D]) --timers[D];
-        if (timers[S]) --timers[S];
-    }
+void Chip8Cpu::decrement_timers() noexcept {
+    if (timers[D]) --timers[D];
+    if (timers[S]) --timers[S];
 }
 
 inline void Chip8Cpu::fetch_instr() {

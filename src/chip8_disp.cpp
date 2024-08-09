@@ -22,7 +22,6 @@ int Chip8Display::init(std::string program, const short scaling_factor) {
     }
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_RenderSetLogicalSize(renderer, REAL_WIDTH, REAL_HEIGHT);
-    render_screen();
     return 0;
 }
 
@@ -65,7 +64,6 @@ bool Chip8Display::draw(u_int8_t *sprite_base_addr, int X, int Y, int rows) {
         if (y == 31) break;
         ++y;
     }
-    render_screen();
     return bit_turned_off;
 }
 

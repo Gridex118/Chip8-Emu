@@ -3,7 +3,6 @@
 #include <string>
 #include <array>
 #include <SDL2/SDL.h>
-#include <chrono>
 #include <memory>
 
 // 4096 cells, 1B each = 4096B = 4KiB
@@ -13,9 +12,6 @@
 
 #define REAL_WIDTH 64
 #define REAL_HEIGHT 32
-
-using Clock = std::chrono::steady_clock;
-using std::chrono::milliseconds;
 
 namespace chip8 {
 
@@ -38,11 +34,11 @@ public:
     void clear();
     [[nodiscard]] bool draw(u_int8_t *sprite_base_addr, int x, int y, int rows);
     void quit_sdl() noexcept;
+    void render_screen() const noexcept;
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
     bool pixels_on_screen[REAL_HEIGHT][REAL_WIDTH]{};
-    void render_screen() const noexcept;
 };
 
 class Chip8Keypad {
@@ -77,12 +73,11 @@ struct Chip8Cpu {
     u_int16_t PC{0x200};   // Program Counter
     u_int16_t I{0};    // Index Register
     std::array<u_int8_t, TIMERS_MAX> timers{};
-    void decrement_timers();
+    void decrement_timers() noexcept;
     int exec_next();
 private:
     u_int16_t instruction;
     inline void fetch_instr();
-    std::chrono::time_point<Clock> last_time_stamp = Clock::now();
 };
 
 class Chip8Emu {

@@ -1,4 +1,5 @@
 #include "chip8.hpp"
+#include "delay.hpp"
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -54,8 +55,11 @@ int Chip8Emu::load_program() {
 
 int Chip8Emu::run_program(std::string program, const short display_scaling_factor, const short cpu_freq) {
     const double FRAMEDELAY = 1000.0 / cpu_freq;
+    DelayClock render_delay(60);
+    DelayClock cpu_clock_delay(60);
     runnig_program = program;
     display->init(runnig_program, display_scaling_factor);
+    display->render_screen();
     if (load_program() != 0) {
         std::cerr << "Error while loading program to memory\n";
         return -1;
@@ -66,17 +70,20 @@ int Chip8Emu::run_program(std::string program, const short display_scaling_facto
     int frame_time;
     while (running) {
         int frame_start = SDL_GetTicks();
-        if (cpu->exec_next() != 0) {
-            std::cerr << "Error in execution stage\n";
-            return -1;
-        }
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
             }
         }
         keypad->handle_input(&event, kbstate, &cpu->PC);
-        cpu->decrement_timers();
+        if (cpu->exec_next() != 0) {
+            std::cerr << "Error in execution stage\n";
+            return -1;
+        }
+        render_delay.tick();
+        if (render_delay.has_moved()) display->render_screen();
+        cpu_clock_delay.tick();
+        if (cpu_clock_delay.has_moved()) cpu->decrement_timers();
         frame_time = SDL_GetTicks() - frame_start;
         if (FRAMEDELAY > frame_time) {
             SDL_Delay(FRAMEDELAY - frame_time);
