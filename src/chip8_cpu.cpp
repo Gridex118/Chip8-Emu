@@ -68,11 +68,19 @@ int Chip8Cpu::exec_next() {
             }
             break;
         case 0x5:
+            if (N(instruction)) {
+                std::cerr << "Illegal instruction";
+                return -1;
+            }
             if (regs[REG_X(instruction)] == regs[REG_Y(instruction)]) {
                 PC += 2;
             }
             break;
         case 0x9:
+            if (N(instruction)) {
+                std::cerr << "Illegal instruction";
+                return -1;
+            }
             if (regs[REG_X(instruction)] != regs[REG_Y(instruction)]) {
                 PC += 2;
             }
@@ -192,11 +200,8 @@ int Chip8Cpu::exec_next() {
                 case 0x29:
                     {
                         u_int8_t font = regs[REG_X(instruction)];
-                        if (font > 0xf) {
-                            std::cerr << "Trying to access unknown font\n";
-                            return -1;
-                        }
-                        auto font_addr = [](u_int8_t font){ return 5 * font; };
+                        if (font > 0xf) font %= 0xf;    // Wrap around
+                        auto font_addr = [](u_int8_t font) { return 5 * font; };
                         I = font_addr(font);
                     }
                     break;
