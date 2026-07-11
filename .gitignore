@@ -4,3 +4,6 @@
 .lsp/
 build/
 .cache/
+/result
+/.direnv/
+/.envrc
