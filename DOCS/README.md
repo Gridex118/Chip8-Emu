@@ -1,6 +1,8 @@
 # CHIP8 EMU 
 A Chip-8 Emulator written in C++ with SDL2 for rendering.
 
+![Running Brick](./images/chip8.GIF)
+
 ## VM Specifications
 
 ### Memory
@@ -18,12 +20,12 @@ A Chip-8 Emulator written in C++ with SDL2 for rendering.
 * Sound Timer(ST): 8 bit
 
 ### Keypad
-|     |     |     |     |
-| --- | --- | --- | --- |
-| 1   | 2   | 3   | C   |
-| 4   | 5   | 6   | D   |
-| 7   | 8   | 9   | E   |
-| A   | 0   | B   | F   |
+|      |      |      |      |
+| ---- | ---- | ---- | ---- |
+| 1    | 2    | 3    | C(4) |
+| 4(q) | 5(w) | 6(e) | D(r) |
+| 7(a) | 8(s) | 9(d) | E(f) |
+| A(z) | 0(x) | B(c) | F(v) |
 
 ### Display
 * 64x32 px
@@ -74,3 +76,13 @@ A Chip-8 Emulator written in C++ with SDL2 for rendering.
     * FX33: Copy the decimal representation of VX to address I... (String)
     * FX55: Copy V0...VX to address I...(I+X)
     * FX65: Copy address I...(I+X) to V0...VX
+
+## [Timendus's Test Suite](https://github.com/Timendus/chip8-test-suite)
+
+- `3-corax+.ch8`
+
+![Opcode Test](./images/opcodes.png)
+
+- `4-flags-ch8`
+
+![Flag Test](./images/flags.png)
