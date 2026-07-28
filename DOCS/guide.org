@@ -1,0 +1,30 @@
+#+Author: Alex Rosegrid
+#+Title: CHIP-8 Emulator - Specs Sheet and Guide
+#+Startup: indent
+
+This 'guide' largely serves as a knowledge bank of sorts for the *eventual* rewrite of the emulator; one that it is due for, particularly in the architecture of the code base.
+
+* The CHIP-8
+For what it's worth, the CHIP-8 was never an actual hardware device, and instead an interpreter written for old PCs with scarcely a few KiBs of memory.
+
+
+* Specs
+
+** Memory
+Its meant to have a byte addressable space of upto 4KiB, evidently the upper limit for the machines of the time.
+The first 512B /(=0x000 (0)= to =0x1FF (512)=)/ are to be treated as unaccessible, since that's where the original interpreter was expected to lie and a valid CHIP-8 ROM would not try to access the region.
+Note that this is an emulator for a machine that ran the CHIP-8 interpreter and uses modern graphs that merely mimics the graphic capabilities of the computers of the time and can not fit inside that memory limit; it does not *need* to, since CHIP-8 interpreter need not be loaded in for our purposes.
+We are, thus, left with an effective address space from =0x200 (512)= to =0xFFF (4095)=.
+As per the original specification, a 32B (16 ✕ 2B) stack exists independently of the main memory (remembers, the CHIP-8 was never a physical machine).
+*** Registers
+16 general purpose (call them =V/x/=) 8-bit registers are required. =VF= (The 16th register) is used as a *Flag Register* by some instructions (Which doesn't seem to fit my idea of a /general/ purpose register, but most literature I found count it as such).
+Additionally,
+  - One 16-bit *Index Register* (=I=) for storing memory addresses.
+  - Two 8-bit *Timer Registers* (=D= and =S=) for delay and sound timers, respectively.
+  - One 8-bit *Stack Pointer* (=SP=)
+  - One 16-bit *Program Counter* (=PC=)
+Practically, =I= and =PC= only ever require the first 12 bits of their designated capacities.
+
+
+* References
+- [[http://devernay.free.fr/hacks/chip8/C8TECH10.HTM][cowgod]] provides an extensive technical reference. This was /not/ what I referenced the first time I wrote the emulator. 
