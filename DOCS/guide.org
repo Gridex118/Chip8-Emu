@@ -12,7 +12,7 @@ For what it's worth, the CHIP-8 was never an actual hardware device, and instead
 
 ** Memory
 Its meant to have a byte addressable space of upto 4KiB, evidently the upper limit for the machines of the time.
-The first 512B /(=0x000 (0)= to =0x1FF (512)=)/ are to be treated as unaccessible, since that's where the original interpreter was expected to lie and a valid CHIP-8 ROM would not try to access the region.
+The first 512B /(=0x000 (0)= to =0x1FF (512)=)/ are to be treated as inaccessible (except, perhaps, a standard hexadecimal font pack), since that's where the original interpreter was expected to lie and a valid CHIP-8 ROM would not try to access the region.
 Note that this is an emulator for a machine that ran the CHIP-8 interpreter and uses modern graphs that merely mimics the graphic capabilities of the computers of the time and can not fit inside that memory limit; it does not *need* to, since CHIP-8 interpreter need not be loaded in for our purposes.
 We are, thus, left with an effective address space from =0x200 (512)= to =0xFFF (4095)=.
 As per the original specification, a 32B (16 ✕ 2B) stack exists independently of the main memory (remembers, the CHIP-8 was never a physical machine).
@@ -24,6 +24,26 @@ Additionally,
   - One 8-bit *Stack Pointer* (=SP=)
   - One 16-bit *Program Counter* (=PC=)
 Practically, =I= and =PC= only ever require the first 12 bits of their designated capacities.
+
+** Keyboard (Input)
+Computers of the time used a *16 key hexadecimal key* grid for input.
+As such, we require a mapping of the form:
+|   1 | 2 |   3 | 0xC |
+|   4 | 5 |   6 | 0xD |
+|   7 | 8 |   9 | 0xE |
+| 0xA | 0 | 0xB | 0xF |
+The current implementation maps this into the /QWERTY/ layout as:
+| 1 | 2 | 3 | 4 |
+| Q | W | E | R |
+| A | S | D | F |
+| Z | X | C | V |
+
+** Display (Output)
+Essentially, a *64✕32 grid*; black and white, as per the original specifications.
+*** Sprites and Fonts
+Graphics are drawn using a *sprite* specification. A sprite itself is a grid no larger than *8✕15* (at most 8 blocks wide, and at most 15 blocks deep).
+As mentioned in [[*Memory][Memory]], a font pack may be loaded. A font is a special sprite, with the dimensions *4✕5* (4 blocks wide, 5 blocks deep).
+For convenience of representation and storage, the fonts are formally 8 blocks wide, where only the first 4 are ever turned on.
 
 
 * References
