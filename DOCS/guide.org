@@ -45,6 +45,60 @@ Graphics are drawn using a *sprite* specification. A sprite itself is a grid no 
 As mentioned in [[*Memory][Memory]], a font pack may be loaded. A font is a special sprite, with the dimensions *4✕5* (4 blocks wide, 5 blocks deep).
 For convenience of representation and storage, the fonts are formally 8 blocks wide, where only the first 4 are ever turned on.
 
+** Clock / Timers
+The CPU for the original seems to have been /something/ *under 1MHz*. The current implementation sets it to *540Hz* but it may be via JSON/CLI.
+*** Delay Timer
+An 8-bit *60Hz* counter used for timing, that decremented each second if set to a non zero value programmatically.
+*** Sound Timer
+A similar 8-bit counter used to specify speaker/buzzer duration, that decremented as above. This buzzer is the only audio output provided by the machine.
+/The current implementation does not handle audio at all./
+
+** The Instruction Set
+Generally speaking, the instructions may be decoded as:
+  - The 1st nibble determine the overall 'group' the instruction refers to.
+  - The 2nd and 3rd nibbles (=X= and =Y=), if they exist, specify which registers are being operated on.
+  - =N=, =NN=, and =NNN= direcly specify 4, 8, and 12 bit numbers respectively.
+1. Group =0=: Exec machine instruction. Only 2 shall be implemented
+    * =00E0=: Clear screen
+    * =00EE=: Return from function call
+2. =1NNN=: Jump to NNN
+3. =2NNN=: Jump to NNN as function call
+4. =3XNN=: Skip the next instruction if VX == NN
+5. =4XNN=: Complement of 3XNN
+6. =5XY0=: Skip if VX == VY
+7. =6XNN=: Set VX = NN
+8. =7XNN=: Set VX = VX + NN
+9. Group =8XY=: Arithmetic and Logical
+    * =0=: Set VX = VY
+    * =1=: Set VX = VX | VY
+    * =2=: Set VX = VX & VY
+    * =3=: Set VX = VX ^ VY (XOR)
+    * =4=: Set VX = VX + VY
+    * =5=: Set VX = VX - VY
+    * =6=: Set VX = VY >> 1, may ignore VY and bitshift VX
+    * =7=: Set VX = VY - VX
+    * =E=: Set VX = VY << 1, may ignore VY and bitshift VX
+10. =9XY0=: Complement of =5XY0=
+11. =ANNN=: Set I = NNN
+12. =BNNN=: Jump to (V0 + NNN)
+    * or, =BXNN=: Jump to (VX + NN)
+13. =CXNN=: Set VX = (RANDOM NUMBER) & NN
+14. =DXYN=: Draw at (VX, VY) an N pixels tall image found at address I
+15. Group =E=: Key press
+    * =EX9E=: Skip next instruction if key VX is pressed
+    * =EXA1=: Complement of EX9E
+16. Group =F=:
+    * =FX07=: Set VX = DT
+    * =FX15=: Set DT = VX
+    * =FX18=: Set ST = VX
+    * =FX1E=: Set I = I + VX, set VF = 1 if I exceeds 0x1000
+    * =FX0A=: Blocking Input, set VX = Input
+    * =FX29=: Point I to the address of the font for the character in VX
+    * =FX33=: Copy the decimal representation of VX to address I... (String)
+    * =FX55=: Copy V0...VX to address I...(I+X)
+    * =FX65=: Copy address I...(I+X) to V0...VX
+
 
 * References
-- [[http://devernay.free.fr/hacks/chip8/C8TECH10.HTM][cowgod]] provides an extensive technical reference. This was /not/ what I referenced the first time I wrote the emulator. 
+- [[http://devernay.free.fr/hacks/chip8/C8TECH10.HTM][cowgod]] provides an extensive technical reference. This was /not/ what I referenced the first time I wrote the emulator.
+- [[https://tobiasvl.github.io/blog/write-a-chip-8-emulator/][tobiasvl]] provides a more detailed explanation on supported OPCODES.
