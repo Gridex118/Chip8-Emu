@@ -67,35 +67,50 @@ Generally speaking, the instructions may be decoded as:
 5. =4XNN=: Complement of 3XNN
 6. =5XY0=: Skip if VX == VY
 7. =6XNN=: Set VX = NN
-8. =7XNN=: Set VX = VX + NN
-9. Group =8XY=: Arithmetic and Logical
+8. =7XNN=: Set VX = VX + NN,
+           Does not affect the flag register.
+9. Group =8XYN=: Arithmetic and Logical
+   These /might/ affect the flag register.
     * =0=: Set VX = VY
     * =1=: Set VX = VX | VY
     * =2=: Set VX = VX & VY
     * =3=: Set VX = VX ^ VY (XOR)
-    * =4=: Set VX = VX + VY
-    * =5=: Set VX = VX - VY
-    * =6=: Set VX = VY >> 1, may ignore VY and bitshift VX
-    * =7=: Set VX = VY - VX
-    * =E=: Set VX = VY << 1, may ignore VY and bitshift VX
+    * =4=: Set VX = VX + VY,
+           VF = overflow?
+    * =5=: Set VX = VX - VY,
+           VF = not (underflow?)
+    * =6=: Set VX = VY >> 1,
+           /might/ ignore VY and bitshift VX,
+           VF = bit shifted out (former LSB)
+    * =7=: Set VX = VY - VX,
+           VF = not (underflow?)
+    * =E=: Set VX = VY << 1,
+           /might/ ignore VY and bitshift VX,
+           VF = bit shifted in (former MSB)
 10. =9XY0=: Complement of =5XY0=
 11. =ANNN=: Set I = NNN
 12. =BNNN=: Jump to (V0 + NNN)
     * or, =BXNN=: Jump to (VX + NN)
 13. =CXNN=: Set VX = (RANDOM NUMBER) & NN
-14. =DXYN=: Draw at (VX, VY) an N pixels tall image found at address I
-15. Group =E=: Key press
-    * =EX9E=: Skip next instruction if key VX is pressed
+14. =DXYN=: Draw at (VX, VY) an N pixels tall image found at address I,
+            The *starting positions* should *wrap* around their respective dimensions in the logical display grid,
+            The *sprite* itself should be clipped at grid boundaries,
+            VF = (any pixel(s) transitioned from ON to OFF)?
+15. Group =E=: Check key press state without waiting
+    * =EX9E=: Skip next instruction if key (0-F) stored in VX is pressed
     * =EXA1=: Complement of EX9E
 16. Group =F=:
     * =FX07=: Set VX = DT
     * =FX15=: Set DT = VX
     * =FX18=: Set ST = VX
-    * =FX1E=: Set I = I + VX, set VF = 1 if I exceeds 0x1000
-    * =FX0A=: Blocking Input, set VX = Input
+    * =FX1E=: Set I = I + VX,
+              /might/ set VF = 1 if I exceeds 0x1000
+    * =FX0A=: Wait for input set VX = Input,
+              Timers *should* still be running while this blocks
     * =FX29=: Point I to the address of the font for the character in VX
     * =FX33=: Copy the decimal representation of VX to address I... (String)
-    * =FX55=: Copy V0...VX to address I...(I+X)
+    * =FX55=: Copy V0...VX to address I...(I+X),
+              Originally, and less commonly, I was incremented directly; later implementations used a temporary variable and preserved the value of I
     * =FX65=: Copy address I...(I+X) to V0...VX
 
 
