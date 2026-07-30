@@ -93,7 +93,7 @@ namespace chip8 {
             ~Chip8Emu();
             int run_program(std::string program, const short display_scaling_factor, const short cpu_freq);
         private:
-            std::string runnig_program;
+            std::string running_program;
             Chip8Display *display;
             Chip8Keypad *keypad;
             Memory *memory;

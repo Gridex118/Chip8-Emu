@@ -1,6 +1,10 @@
 #include "chip8.hpp"
+#include <ios>
 #include <iostream>
-#include <cstdlib>
+#include <fstream>
+#include <iterator>
+#include <vector>
+#include <algorithm>
 
 #define arrlen(arr) (sizeof arr / sizeof arr[0])
 
@@ -23,15 +27,6 @@ uint8_t FONT_DATA[] = {
     0xF0, 0x80, 0xF0, 0x80, 0x80    // F
 };
 
-inline size_t filesize(const char *file_name) {
-    FILE *file = fopen(file_name, "rb");
-    if (file == NULL) return 0;
-    fseek(file, 0, SEEK_END);
-    size_t size = ftell(file);
-    fclose(file);
-    return size;
-}
-
 namespace chip8 {
 
     Chip8Emu::Chip8Emu() {
@@ -52,26 +47,17 @@ namespace chip8 {
     }
 
     int Chip8Emu::load_program() {
-        FILE *source = fopen(runnig_program.c_str(), "rb");
-        if (source == NULL) {
-            std::cerr << "Could not open file\n";
-            std::cerr << errno << '\n';
-            return -1;
-        }
-        size_t size = filesize(runnig_program.c_str());
-        if (size == 0) {
-            std::cerr << "Empty program source\n";
-            return -1;
-        }
-        fread(&memory->ram[0x200], sizeof(u_int8_t), size, source);
-        fclose(source);
+        std::ifstream rom(running_program, std::ios::binary);
+        std::vector<u_int8_t> rom_data((std::istreambuf_iterator<char>(rom)),
+                                       (std::istreambuf_iterator<char>()));
+        std::copy(rom_data.begin(), rom_data.end(), memory->ram.begin() + 0x200);
         return 0;
     }
 
     int Chip8Emu::run_program(std::string program, const short display_scaling_factor, const short cpu_freq) {
-        const double FRAMEDELAY = 1000 / cpu_freq;
-        runnig_program = program;
-        display->init(runnig_program, display_scaling_factor);
+        const double FRAMEDELAY = 1000.F / cpu_freq;
+        running_program = program;
+        display->init(running_program, display_scaling_factor);
         if (load_program() != 0) {
             std::cerr << "Error while loading program to memory\n";
             return -1;
