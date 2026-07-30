@@ -16,7 +16,7 @@ inline void store_decimal(u_int8_t *storage_base_addr, int number) {
 }
 
 inline u_int16_t font_addr(u_int8_t font) {
-    return (5 * font);
+    return (FONT_DEPTH * font);
 }
 
 namespace chip8 {
@@ -164,8 +164,7 @@ namespace chip8 {
                 break;
             case 0xd:
                 regs[VF] = bus.display->draw(&bus.memory->ram[I], regs[REG_X(instruction)],
-                        regs[REG_Y(instruction)], N(instruction)
-                        );
+                                             regs[REG_Y(instruction)], N(instruction));
                 break;
             case 0xe:
                 switch (NN(instruction)) {

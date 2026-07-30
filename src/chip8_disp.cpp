@@ -25,24 +25,13 @@ namespace chip8 {
         render_screen();
         return 0;
     }
-
-    void Chip8Display::clear() {
-        for (size_t i = 0; i < REAL_HEIGHT; i++) {
-            for (size_t j = 0; j < REAL_WIDTH; j++) {
-                pixels_on_screen[i][j] = 0;
-            }
-        }
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
-        SDL_RenderClear(renderer);
-    }
-
     void Chip8Display::render_screen() {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
+        SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
         for (int i = 0; i < REAL_HEIGHT; ++i) {
             for (int j = 0; j < REAL_WIDTH; j++) {
                 if (pixels_on_screen[i][j]) {
-                    SDL_SetRenderDrawColor(renderer, 0xFF, 0xFF, 0xFF, 0xFF);
                     SDL_RenderDrawPoint(renderer, j, i);
                 }
             }
@@ -50,19 +39,30 @@ namespace chip8 {
         SDL_RenderPresent(renderer);
     }
 
+    void Chip8Display::clear() {
+        for (size_t i = 0; i < REAL_HEIGHT; i++) {
+            for (size_t j = 0; j < REAL_WIDTH; j++) {
+                pixels_on_screen[i][j] = 0;
+            }
+        }
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+        SDL_RenderClear(renderer);
+    }
+
+
     bool Chip8Display::draw(u_int8_t *sprite_base_addr, int X, int Y, int rows) {
         bool bit_turned_off = false;
-        int y = Y % 32;
+        int y = Y % REAL_HEIGHT;
         for (int row = 0; row < rows; row++) {
-            int x = X % 64;
-            for (int col = 0; col < 8; col++) {
+            int x = X % REAL_WIDTH;
+            for (int col = 0; col < SPRITE_WIDTH; col++) {
                 bool pixel_in_sprite = ((sprite_base_addr[row] >> (7 - col)) & 1);
                 bit_turned_off |= (pixel_in_sprite & pixels_on_screen[y][x]);
                 pixels_on_screen[y][x] ^= pixel_in_sprite;
-                if (x == 63) break;
+                if (x == REAL_WIDTH - 1) break;
                 ++x;
             }
-            if (y == 31) break;
+            if (y == REAL_HEIGHT - 1) break;
             ++y;
         }
         render_screen();

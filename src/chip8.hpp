@@ -14,10 +14,13 @@
 #define REAL_WIDTH 64
 #define REAL_HEIGHT 32
 
+// Sprites are defined to be exactly 8px wide
+#define SPRITE_WIDTH 8
+// Fonts are defined to have a depth of 5px
+#define FONT_DEPTH 5
+
 using Clock = std::chrono::steady_clock;
 using std::chrono::milliseconds;
-
-extern uint8_t FONT_DATA[];
 
 namespace chip8 {
 

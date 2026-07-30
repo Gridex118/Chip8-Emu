@@ -65,25 +65,25 @@ namespace chip8 {
     int Chip8Emu::run_program(std::string program, const short display_scaling_factor, const short cpu_freq) {
         const double FRAMEDELAY = 1000.F / cpu_freq;
         running_program = program;
-        display->init(running_program, display_scaling_factor);
         if (load_program() != 0) {
             std::cerr << "Error while loading program to memory\n";
             return -1;
         }
+        display->init(running_program, display_scaling_factor);
         const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
         SDL_Event event;
         bool running = true;
         int frame_time;
         while (running) {
-            int frame_start = SDL_GetTicks();
-            if (cpu->exec_next() != 0) {
-                std::cerr << "Error in execution stage\n";
-                return -1;
-            }
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) {
                     running = false;
                 }
+            }
+            int frame_start = SDL_GetTicks();
+            if (cpu->exec_next() != 0) {
+                std::cerr << "Error in execution stage\n";
+                return -1;
             }
             keypad->handle_input(&event, kbstate, &cpu->PC);
             cpu->decrement_timers();
