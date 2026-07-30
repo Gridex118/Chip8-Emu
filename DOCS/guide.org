@@ -48,7 +48,7 @@ For consistency and storage, the fonts are formally 8 blocks wide, where only th
 ** Clock / Timers
 The CPU for the original seems to have been /something/ *under 1MHz*. The current implementation sets it to *540Hz* but it may be via JSON/CLI.
 *** Delay Timer
-An 8-bit *60Hz* counter used for timing, that decremented each second if set to a non zero value programmatically.
+An 8-bit *60Hz* counter used for timing, that decremented 60 times each second if set to a non zero value programmatically.
 *** Sound Timer
 A similar 8-bit counter used to specify speaker/buzzer duration, that decremented as above. This buzzer is the only audio output provided by the machine.
 /The current implementation does not handle audio at all./
