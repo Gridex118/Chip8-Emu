@@ -48,8 +48,16 @@ namespace chip8 {
 
     int Chip8Emu::load_program() {
         std::ifstream rom(running_program, std::ios::binary);
+        if (!rom.good()) {
+            std::cerr << "Error occured while trying to load ROM\n";
+            return -1;
+        }
         std::vector<u_int8_t> rom_data((std::istreambuf_iterator<char>(rom)),
                                        (std::istreambuf_iterator<char>()));
+        if (rom_data.empty()) {
+            std::cerr << "ROM file found empty\n";
+            return -1;
+        }
         std::copy(rom_data.begin(), rom_data.end(), memory->ram.begin() + 0x200);
         return 0;
     }

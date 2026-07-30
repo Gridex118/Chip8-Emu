@@ -7,3 +7,4 @@ build/
 /result
 /.direnv/
 /.envrc
+/config.json
