@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
+#include <thread>
 #include <vector>
 #include <algorithm>
 
@@ -63,7 +64,7 @@ namespace chip8 {
     }
 
     int Chip8Emu::run_program(std::string program, const short display_scaling_factor, const short cpu_freq) {
-        const double FRAMEDELAY = 1000.F / cpu_freq;
+        const auto FRAMEDELAY = duration_cast<microseconds>(duration<double>(1.0 / cpu_freq));
         running_program = program;
         if (load_program() != 0) {
             std::cerr << "Error while loading program to memory\n";
@@ -73,23 +74,23 @@ namespace chip8 {
         const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
         SDL_Event event;
         bool running = true;
-        int frame_time;
         while (running) {
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) {
                     running = false;
                 }
             }
-            int frame_start = SDL_GetTicks();
+            auto frame_start_stamp = Clock::now();
             if (cpu->exec_next() != 0) {
                 std::cerr << "Error in execution stage\n";
                 return -1;
             }
             keypad->handle_input(&event, kbstate, &cpu->PC);
             cpu->decrement_timers();
-            frame_time = SDL_GetTicks() - frame_start;
-            if (FRAMEDELAY > frame_time) {
-                SDL_Delay(FRAMEDELAY - frame_time);
+            auto frame_end_stamp = Clock::now();
+            auto frame_time = duration_cast<microseconds>(frame_end_stamp - frame_start_stamp);
+            if (frame_time < FRAMEDELAY) {
+                std::this_thread::sleep_for(FRAMEDELAY - frame_time);
             }
         }
         return 0;

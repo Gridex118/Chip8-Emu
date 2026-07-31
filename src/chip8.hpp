@@ -20,7 +20,9 @@
 #define FONT_DEPTH 5
 
 using Clock = std::chrono::steady_clock;
-using std::chrono::milliseconds;
+using std::chrono::microseconds;
+using std::chrono::duration;
+using std::chrono::duration_cast;
 
 namespace chip8 {
 

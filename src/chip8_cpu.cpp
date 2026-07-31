@@ -19,6 +19,8 @@ inline u_int16_t font_addr(u_int8_t font) {
     return (FONT_DEPTH * font);
 }
 
+constexpr auto TIMER_DELAY = duration_cast<microseconds>(duration<double>(1.0 / 60));
+
 namespace chip8 {
 
     Chip8Cpu::Chip8Cpu(Memory *memory, Chip8Display *display, Chip8Keypad *keypad) {
@@ -29,10 +31,8 @@ namespace chip8 {
 
     void Chip8Cpu::decrement_timers() {
         auto current_time_stamp = Clock::now();
-        milliseconds duration = std::chrono::duration_cast<milliseconds>(current_time_stamp - last_time_stamp);
-        milliseconds min_ms_elapsed = static_cast<milliseconds>(17);
-        if (duration >= min_ms_elapsed) {
-            last_time_stamp = current_time_stamp;
+        while (current_time_stamp - last_time_stamp >= TIMER_DELAY) {
+            last_time_stamp += TIMER_DELAY;
             if (timers[D]) --timers[D];
             if (timers[S]) --timers[S];
         }
