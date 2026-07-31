@@ -1,4 +1,6 @@
 #include "chip8.hpp"
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_keyboard.h>
 #include <unordered_map>
 
 const std::unordered_map<u_int8_t, int> KEYS = {
@@ -26,6 +28,10 @@ const std::unordered_map<int, u_int8_t> KEYS_REV = {
 
 namespace chip8 {
 
+    void Chip8Keypad::init() {
+        this->kbstate = SDL_GetKeyboardState(NULL);
+    }
+
     void Chip8Keypad::request_halting_input(u_int8_t *store_at) {
         halting_input_requested = true;
         storage_reg = store_at;
@@ -33,31 +39,25 @@ namespace chip8 {
 
     void Chip8Keypad::request_key(u_int8_t key, bool xor_mask) {
         key_check_requested = true;
-        requested_key = KEYS_REV.at(key);
+        requested_scancode = KEYS_REV.at(key);
         key_skip_xor_mask = xor_mask;
     }
 
-    void Chip8Keypad::handle_input(SDL_Event *event, const Uint8 *kbstate, u_int16_t *program_counter) {
+    void Chip8Keypad::handle_input(u_int16_t *program_counter) {
         if (halting_input_requested) {
-            bool hit = false;
-            SDL_WaitEvent(event);
-            if (event->type == SDL_KEYDOWN) {
-                u_int8_t scancode = event->key.keysym.scancode;
-                if (KEYS.find(scancode) != KEYS.end()) {
-                    hit = true;
-                    *storage_reg = KEYS.at(scancode);
+            for (const auto &[scancode, key] : KEYS) {
+                if (kbstate[scancode]) {
+                    *storage_reg = key;
                     halting_input_requested = false;
+                    return;
                 }
             }
-            if (!hit) {
-                *program_counter -= 2;
-            }
-        }
-        if (key_check_requested) {
-            key_check_requested = false;
-            if (!(kbstate[requested_key] ^ key_skip_xor_mask)) {
+            return;
+        } else if (key_check_requested) {
+            if (!(kbstate[requested_scancode] ^ key_skip_xor_mask)) {
                 *program_counter += 2;
             }
+            key_check_requested = false;
         }
     }
 

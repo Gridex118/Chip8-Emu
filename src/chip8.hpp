@@ -56,12 +56,15 @@ namespace chip8 {
     public:
         void request_halting_input(u_int8_t *store_at);
         void request_key(u_int8_t key, bool xor_mask);
-        void handle_input(SDL_Event *event, const Uint8 *kbstate, u_int16_t *program_counter);
+        void handle_input(u_int16_t *program_counter);
+        void init();
+        bool waiting_for_key() const { return halting_input_requested; }
     private:
         bool halting_input_requested = false;
         u_int8_t *storage_reg;
+        const Uint8 *kbstate;
         bool key_check_requested = false;
-        u_int8_t requested_key;
+        u_int8_t requested_scancode;
         bool key_skip_xor_mask = 0;
     };
 

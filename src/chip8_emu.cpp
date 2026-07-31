@@ -71,21 +71,23 @@ namespace chip8 {
             return -1;
         }
         display->init(running_program, display_scaling_factor);
-        const Uint8 *kbstate = SDL_GetKeyboardState(NULL);
-        SDL_Event event;
+        keypad->init();
         bool running = true;
         while (running) {
+            SDL_Event event;
             while (SDL_PollEvent(&event)) {
                 if (event.type == SDL_QUIT) {
                     running = false;
                 }
             }
+            keypad->handle_input(&cpu->PC);
             auto frame_start_stamp = Clock::now();
-            if (cpu->exec_next() != 0) {
-                std::cerr << "Error in execution stage\n";
-                return -1;
+            if (!keypad->waiting_for_key()) {
+                if (cpu->exec_next() != 0) {
+                    std::cerr << "Error in execution stage\n";
+                    return -1;
+                }
             }
-            keypad->handle_input(&event, kbstate, &cpu->PC);
             cpu->decrement_timers();
             auto frame_end_stamp = Clock::now();
             auto frame_time = duration_cast<microseconds>(frame_end_stamp - frame_start_stamp);
