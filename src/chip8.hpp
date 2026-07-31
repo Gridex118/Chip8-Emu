@@ -40,29 +40,29 @@ namespace chip8 {
     };
 
     class Chip8Display {
-        public:
-            ~Chip8Display();
-            int init(std::string program, const short scaling_factor);
-            void clear();
-            bool draw(u_int8_t *sprite_base_addr, int x, int y, int rows);
-        private:
-            SDL_Window *window;
-            SDL_Renderer *renderer;
-            bool pixels_on_screen[REAL_HEIGHT][REAL_WIDTH] = {};
-            void render_screen();
+    public:
+        ~Chip8Display();
+        int init(std::string program, const short scaling_factor);
+        void clear();
+        bool draw(u_int8_t *sprite_base_addr, int x, int y, int rows);
+    private:
+        SDL_Window *window;
+        SDL_Renderer *renderer;
+        bool pixels_on_screen[REAL_HEIGHT][REAL_WIDTH] = {};
+        void render_screen();
     };
 
     class Chip8Keypad {
-        public:
-            void request_halting_input(u_int8_t *store_at);
-            void request_key(u_int8_t key, bool xor_mask);
-            void handle_input(SDL_Event *event, const Uint8 *kbstate, u_int16_t *program_counter);
-        private:
-            bool halting_input_requested = false;
-            u_int8_t *storage_reg;
-            bool key_check_requested = false;
-            u_int8_t requested_key;
-            bool key_skip_xor_mask = 0;
+    public:
+        void request_halting_input(u_int8_t *store_at);
+        void request_key(u_int8_t key, bool xor_mask);
+        void handle_input(SDL_Event *event, const Uint8 *kbstate, u_int16_t *program_counter);
+    private:
+        bool halting_input_requested = false;
+        u_int8_t *storage_reg;
+        bool key_check_requested = false;
+        u_int8_t requested_key;
+        bool key_skip_xor_mask = 0;
     };
 
     struct Memory {
@@ -76,7 +76,8 @@ namespace chip8 {
         Chip8Keypad *keypad;
     };
 
-    struct Chip8Cpu {
+    class Chip8Cpu {
+    public:
         Chip8Cpu(Memory *memory, Chip8Display *display, Chip8Keypad *keypad);
         Bus bus;
         std::array<u_int8_t, REG_MAX> regs = {};
@@ -86,24 +87,24 @@ namespace chip8 {
         std::array<u_int8_t, TIMERS_MAX> timers = {};
         void decrement_timers();
         int exec_next();
-        private:
-            u_int16_t instruction;
-            inline void fetch_instr();
-            std::chrono::time_point<Clock> last_time_stamp = Clock::now();
+    private:
+        u_int16_t instruction;
+        inline void fetch_instr();
+        std::chrono::time_point<Clock> last_time_stamp = Clock::now();
     };
 
     class Chip8Emu {
-        public:
-            Chip8Emu();
-            ~Chip8Emu();
-            int run_program(std::string program, const short display_scaling_factor, const short cpu_freq);
-        private:
-            std::string running_program;
-            Chip8Display *display;
-            Chip8Keypad *keypad;
-            Memory *memory;
-            Chip8Cpu *cpu;
-            int load_program();
+    public:
+        Chip8Emu();
+        ~Chip8Emu();
+        int run_program(std::string program, const short display_scaling_factor, const short cpu_freq);
+    private:
+        std::string running_program;
+        Chip8Display *display;
+        Chip8Keypad *keypad;
+        Memory *memory;
+        Chip8Cpu *cpu;
+        int load_program();
     };
 
 }
